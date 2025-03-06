@@ -13,5 +13,5 @@ xmlns:sts="dian:gov:co:facturaelectronica:Structures-2-1" \n\
 xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" \n\
 xmlns:xades141="http://uri.etsi.org/01903/v1.4.1#" \n\
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" \n\
-xsi:schemaLocation="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2     http://docs.oasis-open.org/ubl/os-UBL-2.1/xsd/maindoc/UBL-Invoice-2.1.xsd">\
+xsi:schemaLocation="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2     http://docs.oasis-open.org/ubl/os-UBL-2.1/xsd/maindoc/UBL-Invoice-2.1.xsd">\n\
     ')

@@ -1,7 +1,6 @@
 
 def AccountingSupplierParty(
                               AdditionalAccountID,
-                              IndustryClasificationCode,
                               PartyName,
                               PhysicalLocationID,
                               PhysicalLocationCityName,
@@ -29,8 +28,9 @@ def AccountingSupplierParty(
    <cac:AccountingSupplierParty>\n\
       <cbc:AdditionalAccountID>{AdditionalAccountID}</cbc:AdditionalAccountID>\n\
       <cac:Party>\n\
-         <cbc:IndustryClasificationCode>{IndustryClasificationCode}</cbc:IndustryClasificationCode>\n\
-         {PartyName}\n\
+         <cac:PartyName>\n\
+            <cbc:Name>{PartyName}</cbc:Name>\n\
+         </cac:PartyName>\n\
          <cac:PhysicalLocation>\n\
             <cac:Address>\n\
                <cbc:ID>{PhysicalLocationID}</cbc:ID>\n\
@@ -71,17 +71,7 @@ def AccountingSupplierParty(
          <cac:PartyLegalEntity>\n\
             <cbc:RegistrationName>{RegistrationName}</cbc:RegistrationName>\n\
             <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="{ProviderIDDV}" schemeName="31">{ProviderID}</cbc:CompanyID>\n\
-            <cac:CorporateRegistrationScheme>\n\
-               <cbc:ID>SETP</cbc:ID>\n\
-               <cbc:Name>10181</cbc:Name>\n\
-            </cac:CorporateRegistrationScheme>\n\
          </cac:PartyLegalEntity>\n\
-         <cac:Contact>\n\
-            <cbc:Name>Eric Valencia</cbc:Name>\n\
-            <cbc:Telephone>6111111</cbc:Telephone>\n\
-            <cbc:ElectronicMail>eric.valencia@ket.co</cbc:ElectronicMail>\n\
-            <cbc:Note>Test descripcion contacto</cbc:Note>\n\
-         </cac:Contact>\n\
       </cac:Party>\n\
-   </cac:AccountingSupplierParty>\
+   </cac:AccountingSupplierParty>\n\
     ')
