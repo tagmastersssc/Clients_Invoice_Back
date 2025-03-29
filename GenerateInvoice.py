@@ -8,11 +8,15 @@ import XML_Parts.PaymentMeans
 import XML_Parts.TaxTotal
 import XML_Parts.LegalMonetaryTotal
 import XML_Parts.InvoiceLine
+import XML_Parts.Signature
+
+import xmlschema
 
 import hashlib
 
 #Pendiente
 #Todo debe llevar dos digitos, desde BD
+#TaxTotal puede haber varios, que son la suma de TaxSubtotal, TaxSubtotal puede haber varios.
 
 #Header
 #****Header
@@ -30,7 +34,8 @@ SoftwareID              = "56f2ae4e-9812-4fad-9255-08fcfcd5ccb0" #Id, en página
 PIN                     = "00001"           #Pin, en página habilitacion de la Dian
 SoftwareSecurityCode    = "a8d18e4e5aa00b44a0b1f9ef413ad8215116bd3ce91730d580eaed795c83b5a32fe6f0823abc71400b3d59eb542b7de8" #CAMBIAR, se debe generar con un hash incluyendo el PIN, según documentación
 AuthorizationProviderID = "800197268"       #Nit Dian
-#Pendiente QR
+AuthorizationProviderDV = "4"               #DV Dian
+URL                     = "https://catalogo-vpfe-hab.dian.gov.co/document/searchqr?documentKey=" #Cambiar cuando sea prod
 
 #****UBLExtensions
 
@@ -185,10 +190,10 @@ CodImp2                                     = "04" #04 Este valor es fijo.
 ValImp2                                     = "0.00" #Valor impuesto 04 - Impuesto Nacional al Consumo    // Revisar, se deben sumar todos los impuestos de algún lado, seguramente de TaxSubtotal
 CodImp3                                     = "03" #03 Este valor es fijo.
 ValImp3                                     = "0.00" #Valor impuesto 03 - ICA    // Revisar, se deben sumar todos los impuestos de algún lado, seguramente de TaxSubtotal
-
+ClTec                                       = "" #Extraer de página de la DIAN // Clave tecnica // pendiente
 
 #Construcción CUFE
-CUFE                        = ID + IssueDate + IssueTime + LineExtensionAmount + CodImp1 + ValImp1 + CodImp2 + ValImp2 + CodImp3 + ValImp3 + 
+CUFE                        = ID + IssueDate + IssueTime + LineExtensionAmount + CodImp1 + ValImp1 + CodImp2 + ValImp2 + CodImp3 + ValImp3 + PayableAmount + ProviderID + PartyIdentification + ClTec + ProfileExecutionID
 CUFE                        = CUFE.encode()
 CUFE                        = hashlib.sha384(CUFE).hexdigest()
 
@@ -202,10 +207,22 @@ UBLExtensions                   = XML_Parts.UBLExtensions.UBLExtensions(
                                     From,
                                     To,
                                     ProviderID,
+                                    ProviderIDDV,
                                     SoftwareID,
                                     SoftwareSecurityCode,
-                                    AuthorizationProviderID
+                                    AuthorizationProviderID,
+                                    AuthorizationProviderDV,
+                                    ID,
+                                    PartyIdentification,
+                                    IssueDate,
+                                    PayableAmount,
+                                    CUFE,
+                                    URL
                                 )   
+
+Signature                       = XML_Parts.Signature.Signature(
+                                    
+                                )
 
 VersionXML                      = XML_Parts.VersionXML.VersionXML(
                                     UBLVersionID,
@@ -314,6 +331,7 @@ def CreateXml():
     return(
         Header +
         UBLExtensions +
+        Signature +
         VersionXML +
         AccountingSupplierParty +
         AccountingCustomerParty +
@@ -336,3 +354,6 @@ f = open("Invoice.xml", "r")
 print(f.read())
 
 
+#Validate XML
+# my_schema = xmlschema.XMLSchema('./Caja-de-herramientas-FE-V1-9/XSD/maindoc/UBL-Invoice-2.1.xsd')
+# my_schema.validate('Invoice.xml')
