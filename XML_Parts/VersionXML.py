@@ -16,6 +16,7 @@ def VersionXML(
                 ):
     return(
         f'\
+   </ext:ExtensionContent></ext:UBLExtension></ext:UBLExtensions>\n\
    <cbc:UBLVersionID>{UBLVersionID}</cbc:UBLVersionID>\n\
    <cbc:CustomizationID>{CustomizationID}</cbc:CustomizationID>\n\
    <cbc:ProfileID>DIAN 2.1</cbc:ProfileID>\n\

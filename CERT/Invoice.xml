@@ -40,10 +40,10 @@ xsi:schemaLocation="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2     h
                <sts:QRCode>NroFactura=SETP990000000
 								NitFacturador=800197268
 								NitAdquiriente=1014262008
-								FechaFactura=2025-09-19
+								FechaFactura=2019-06-20
 								ValorTotalFactura=15024.07
-								CUFE=7264f7c6a1b0c4d370cc3e1fa8b7aeec348166d0b7143fb3a839cab78a05eff7d8bfb40b40dc8f0f6969ec4f6ba24a89
-								URL=https://catalogo-vpfe-hab.dian.gov.co/document/searchqr?documentKey=7264f7c6a1b0c4d370cc3e1fa8b7aeec348166d0b7143fb3a839cab78a05eff7d8bfb40b40dc8f0f6969ec4f6ba24a89</sts:QRCode>
+								CUFE=93d4604bdfd8e43dabc5e6ae933562acb6577d1c687c5a78dbcbeec21edc47540bf0ef0f30a0be802dd9865404e9c8ca
+								URL=https://catalogo-vpfe-hab.dian.gov.co/document/searchqr?documentKey=93d4604bdfd8e43dabc5e6ae933562acb6577d1c687c5a78dbcbeec21edc47540bf0ef0f30a0be802dd9865404e9c8ca</sts:QRCode>
             </sts:DianExtensions>
          </ext:ExtensionContent>
       </ext:UBLExtension>
@@ -55,9 +55,9 @@ xsi:schemaLocation="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2     h
    <cbc:ProfileID>DIAN 2.1</cbc:ProfileID>
    <cbc:ProfileExecutionID>2</cbc:ProfileExecutionID>
    <cbc:ID>SETP990000000</cbc:ID>
-   <cbc:UUID schemeID="2" schemeName="CUFE-SHA384">7264f7c6a1b0c4d370cc3e1fa8b7aeec348166d0b7143fb3a839cab78a05eff7d8bfb40b40dc8f0f6969ec4f6ba24a89</cbc:UUID>
-   <cbc:IssueDate>2025-09-19</cbc:IssueDate>
-   <cbc:IssueTime>23:33:53-05:00</cbc:IssueTime>
+   <cbc:UUID schemeID="2" schemeName="CUFE-SHA384">93d4604bdfd8e43dabc5e6ae933562acb6577d1c687c5a78dbcbeec21edc47540bf0ef0f30a0be802dd9865404e9c8ca</cbc:UUID>
+   <cbc:IssueDate>2019-06-20</cbc:IssueDate>
+   <cbc:IssueTime>09:15:23-05:00</cbc:IssueTime>
    <cbc:InvoiceTypeCode>01</cbc:InvoiceTypeCode>
    <cbc:Note>SETP9900000022019-06-2009:15:23-05:0012600.06012424.01040.00030.0014024.07900508908900108281fc8eac422eba16e22ffd8c6f94b3f40a6e38162c2</cbc:Note>
    <cbc:DocumentCurrencyCode listAgencyID="6" listAgencyName="United Nations Economic Commission for Europe" listID="ISO 4217 Alpha">COP</cbc:DocumentCurrencyCode>

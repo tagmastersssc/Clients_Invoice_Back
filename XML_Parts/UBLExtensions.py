@@ -59,4 +59,5 @@ def UBLExtensions(
          </ext:ExtensionContent>\n\
       </ext:UBLExtension>\n\
    \n\
+   <ext:UBLExtension><ext:ExtensionContent>\n\
     ')
