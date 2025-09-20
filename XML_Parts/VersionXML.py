@@ -2,6 +2,7 @@
 def VersionXML(
                 UBLVersionID,
                 CustomizationID,
+                ProfileID,
                 ProfileExecutionID,
                 ID,
                 CUFE,
@@ -19,7 +20,7 @@ def VersionXML(
    </ext:ExtensionContent></ext:UBLExtension></ext:UBLExtensions>\n\
    <cbc:UBLVersionID>{UBLVersionID}</cbc:UBLVersionID>\n\
    <cbc:CustomizationID>{CustomizationID}</cbc:CustomizationID>\n\
-   <cbc:ProfileID>DIAN 2.1</cbc:ProfileID>\n\
+   <cbc:ProfileID>{ProfileID}</cbc:ProfileID>\n\
    <cbc:ProfileExecutionID>{ProfileExecutionID}</cbc:ProfileExecutionID>\n\
    <cbc:ID>{ID}</cbc:ID>\n\
    <cbc:UUID schemeID="2" schemeName="CUFE-SHA384">{CUFE}</cbc:UUID>\n\

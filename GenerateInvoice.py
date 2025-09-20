@@ -13,6 +13,8 @@ import hashlib
 import requests
 import base64
 import uuid
+import zipfile
+import os
 from lxml import etree
 from datetime import datetime, timezone, timedelta
 from cryptography.hazmat.primitives import hashes, serialization
@@ -32,20 +34,25 @@ EndDate                 = "2030-01-19"      #Fecha hasta, en página habilitacio
 Prefix                  = "SETP"            #Prefijo, en página habilitacion de la Dian
 From                    = "990000000"       #Rango desde, en página habilitacion de la Dian
 To                      = "995000000"       #Rango hasta, en página habilitacion de la Dian
-ProviderID              = "800197268"       #Nit de la compañía que genera la factura
-ProviderIDDV            = "4"               #Digito de verificacion del NIT
-SoftwareID              = "56f2ae4e-9812-4fad-9255-08fcfcd5ccb0" #Id, en página habilitacion de la Dian
-PIN                     = "00001"           #Pin, en página habilitacion de la Dian
-SoftwareSecurityCode    = "a8d18e4e5aa00b44a0b1f9ef413ad8215116bd3ce91730d580eaed795c83b5a32fe6f0823abc71400b3d59eb542b7de8" #CAMBIAR, se debe generar con un hash incluyendo el PIN, según documentación
+ProviderID              = "901923739"       #Nit de la compañía que genera la factura
+ProviderIDDV            = "3"               #Digito de verificacion del NIT
+SoftwareID              = "842d4a34-e39e-4968-af09-af5ca506b971" #Id, en página habilitacion de la Dian
+PIN                     = "12345"           #Pin, en página habilitacion de la Dian
+
+ID                      = Prefix + From #El From debería estar en un For, para ir aumentando el consecutivo
+
+SoftwareSecurityCode    = SoftwareID + PIN + ID
+SoftwareSecurityCode    = SoftwareSecurityCode.encode()
+SoftwareSecurityCode    = hashlib.sha384(SoftwareSecurityCode).hexdigest()
 AuthorizationProviderID = "800197268"       #Nit Dian
 AuthorizationProviderDV = "4"               #DV Dian
-URL                     = "https://catalogo-vpfe-hab.dian.gov.co/document/searchqr?documentKey=" #Cambiar cuando sea prod
+URL                     = "https://catalogo-vpfe-hab.dian.gov.co/document/searchqr?documentKey=" #Cambiar cuando sea prod //Pendiente revisar
 
 #****UBLExtensions
 
 #Signature
 
-ID                          = Prefix + From #El From debería estar en un For, para ir aumentando el consecutivo
+
 
 UUID                        = uuid.uuid4()
 
@@ -142,7 +149,7 @@ DownloadedSignPolicy        = requests.get(SignPolicyURL)
 DownloadedSignPolicy.raise_for_status()
 DigestValueSigPolicyHash    = base64.b64encode(hashlib.sha256(DownloadedSignPolicy.content).digest()).decode("utf-8")
 SignerRole                  = "supplier"
-
+#Pendiente revisar si hay que agregar varios certificados
 SignedProperties            = f"""<xades:SignedProperties Id="xmldsig-{UUID}-signedprops" xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
 <xades:SignedSignatureProperties>
 <xades:SigningTime>{SigningTimeFormatted}</xades:SigningTime>
@@ -184,6 +191,7 @@ SignedProperties            = f"""<xades:SignedProperties Id="xmldsig-{UUID}-sig
 # VersionXML
 UBLVersionID                = "UBL 2.1"
 CustomizationID             = "10" #09	AIU, 10	Estándar *, 11	Mandatos, 12	Transporte**, 14	Notariios, 15	Compra Divisas, 16	Venta Divisas Tabla 13.1.5.1
+ProfileID                   = "DIAN 2.1: Factura Electrónica de Venta" #Debe cambiar si es nota credito factura etc...
 ProfileExecutionID          = "2" #1 Prod, 2 pruebas
 IssueDate                   = now.strftime("%Y-%m-%d")
 IssueTime                   = now.strftime("%H:%M:%S%z")
@@ -201,7 +209,7 @@ BillingReference            = "" #Solo para documento con nota credito sacar mod
 #AccountingSupplierParty  Grupo de información que definen el obligado a facturar: Emisor de la factura
 AdditionalAccountID                             = "1" # 1	Persona Jurídica y asimiladas, 2	Persona Natural y asimiladas Tabla 13.2.3
 # IndustryClasificationCode                       = "5440" # Corresponde al código de actividad económica CIIU // al parecer la etiqueta es opcional, pendiente convertir en arreglo, pueden ser varios
-PartyName                                       = "Nombre Tienda" #Nombre comercial del emisor
+PartyName                                       = "BILAI S.A.S" #Nombre comercial del emisor
 PhysicalLocationID                              = "11001" #Codigo municipio, tabla 13.4.3, pasar a SQL
 PhysicalLocationCityName                        = "Bogotá, D.c. " #Nombre ciudad, tabla 13.4.3, pasar a SQL
 PhysicalLocationCountrySubentity                = "Bogotá" # Departamento, tabla 13.4.2, pasar a SQL
@@ -221,7 +229,7 @@ RegistrationAddressCountryIdentificationCode    = CountryIdentificationCode #Cam
 RegistrationAddressCountryName                  = CountryName #Cambiar si la direccion fiscal del emisor es diferente
 TaxSchemeID                                     = "01" #Identificador del tributo tabla 13.2.6.2 //// 01	IVA 04	INC ZA	IVA e INC ZZ 	No aplica *
 TaxSchemeName                                   = "IVA" #Nombre del tributo tabla 13.2.6.2 //// 01	IVA 04	INC ZA	IVA e INC ZZ 	No aplica *
-#CorporateRegistrationScheme se eliminó etiqueta
+MatriculaMercantil                              = "3930757" #https://www.rues.org.co/buscar/RM/ Nit al final
 #Contact se eliminó etiqueta
 
 #****AccountingSupplierParty 
@@ -359,6 +367,7 @@ UBLExtensions                   = XML_Parts.UBLExtensions.UBLExtensions(
 VersionXML                      = XML_Parts.VersionXML.VersionXML(
                                     UBLVersionID,
                                     CustomizationID,
+                                    ProfileID,
                                     ProfileExecutionID,
                                     ID,
                                     CUFE,
@@ -394,7 +403,8 @@ AccountingSupplierParty         = XML_Parts.AccountingSupplierParty.AccountingSu
                                     RegistrationAddressCountryIdentificationCode,
                                     RegistrationAddressCountryName,
                                     TaxSchemeID,
-                                    TaxSchemeName
+                                    TaxSchemeName,
+                                    Prefix,
                                 )
 
 AccountingCustomerParty         = XML_Parts.AccountingCustomerParty.AccountingCustomerParty(
@@ -586,10 +596,17 @@ with open("invoice_c14n_pretty.xml", "w", encoding="utf-8") as f:
     f.write(pretty_xml)
 #####
 
+#Comprimir XML en Zip
+FileToZip = "Invoice_c14n.xml"
+DestinationZip = "Invoice_c14n.zip"
 
+with zipfile.ZipFile(DestinationZip, "w", zipfile.ZIP_DEFLATED) as zipf:
+    zipf.write(FileToZip, os.path.basename(FileToZip))
 
+with open(DestinationZip, "rb") as f:
+    ZipBase64 = base64.b64encode(f.read()).decode("utf-8")
 
-
+print(ZipBase64)
 
 #Mostrar archivo
 # f = open("Invoice.xml", "r")

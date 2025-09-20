@@ -1,7 +1,7 @@
 #!/bin/bash
 
 
-#VsQkyWgLqSuZEJoC
+# VsQkyWgLqSuZEJoC
 
 #Obtener certificado publico
 openssl pkcs12 -in "BILAI S.A.S.p12" -clcerts -nokeys -legacy -nodes | \

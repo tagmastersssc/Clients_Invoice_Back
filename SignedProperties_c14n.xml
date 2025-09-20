@@ -1,6 +1,6 @@
-<xades:SignedProperties xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Id="xmldsig-2928c30c-743e-463f-aa8e-b29ef277d033-signedprops">
+<xades:SignedProperties xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" Id="xmldsig-9b72adfd-fe9c-4e8a-80f0-72138caec67a-signedprops">
 <xades:SignedSignatureProperties>
-<xades:SigningTime>2025-09-19T23:33:53.953-05:00</xades:SigningTime>
+<xades:SigningTime>2025-09-20T15:04:30.327-05:00</xades:SigningTime>
 <xades:SigningCertificate>
 <xades:Cert>
 <xades:CertDigest>

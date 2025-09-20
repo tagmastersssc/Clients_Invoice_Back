@@ -21,57 +21,60 @@ def AccountingSupplierParty(
                               RegistrationAddressCountryIdentificationCode,
                               RegistrationAddressCountryName,
                               TaxSchemeID,
-                              TaxSchemeName
+                              TaxSchemeName,
+                              Prefix
                               ):
     return(
-        f'\
-   <cac:AccountingSupplierParty>\n\
-      <cbc:AdditionalAccountID>{AdditionalAccountID}</cbc:AdditionalAccountID>\n\
-      <cac:Party>\n\
-         <cac:PartyName>\n\
-            <cbc:Name>{PartyName}</cbc:Name>\n\
-         </cac:PartyName>\n\
-         <cac:PhysicalLocation>\n\
-            <cac:Address>\n\
-               <cbc:ID>{PhysicalLocationID}</cbc:ID>\n\
-               <cbc:CityName>{PhysicalLocationCityName}</cbc:CityName>\n\
-               <cbc:CountrySubentity>{PhysicalLocationCountrySubentity}</cbc:CountrySubentity>\n\
-               <cbc:CountrySubentityCode>{PhysicalLocationCountrySubentityCode}</cbc:CountrySubentityCode>\n\
-               <cac:AddressLine>\n\
-                  <cbc:Line>{PhysicalLocationAddressLine}</cbc:Line>\n\
-               </cac:AddressLine>\n\
-               <cac:Country>\n\
-                  <cbc:IdentificationCode>{CountryIdentificationCode}</cbc:IdentificationCode>\n\
-                  <cbc:Name languageID="es">{CountryName}</cbc:Name>\n\
-               </cac:Country>\n\
-            </cac:Address>\n\
-         </cac:PhysicalLocation>\n\
-         <cac:PartyTaxScheme>\n\
-            <cbc:RegistrationName>{RegistrationName}</cbc:RegistrationName>\n\
-            <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="{ProviderIDDV}" schemeName="31">{ProviderID}</cbc:CompanyID>\n\
-            <cbc:TaxLevelCode listName="05">{TaxLevelCode}</cbc:TaxLevelCode>\n\
-            <cac:RegistrationAddress>\n\
-               <cbc:ID>{RegistrationAddressID}</cbc:ID>\n\
-               <cbc:CityName>{RegistrationAddressCityName}</cbc:CityName>\n\
-               <cbc:CountrySubentity>{RegistrationAddressCountrySubentity}</cbc:CountrySubentity>\n\
-               <cbc:CountrySubentityCode>{RegistrationAddressCountrySubentityCode}</cbc:CountrySubentityCode>\n\
-               <cac:AddressLine>\n\
-                  <cbc:Line>{RegistrationAddressAddressLine}</cbc:Line>\n\
-               </cac:AddressLine>\n\
-               <cac:Country>\n\
-                  <cbc:IdentificationCode>{RegistrationAddressCountryIdentificationCode}</cbc:IdentificationCode>\n\
-                  <cbc:Name languageID="es">{RegistrationAddressCountryName}</cbc:Name>\n\
-               </cac:Country>\n\
-            </cac:RegistrationAddress>\n\
-            <cac:TaxScheme>\n\
-               <cbc:ID>{TaxSchemeID}</cbc:ID>\n\
-               <cbc:Name>{TaxSchemeName}</cbc:Name>\n\
-            </cac:TaxScheme>\n\
-         </cac:PartyTaxScheme>\n\
-         <cac:PartyLegalEntity>\n\
-            <cbc:RegistrationName>{RegistrationName}</cbc:RegistrationName>\n\
-            <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="{ProviderIDDV}" schemeName="31">{ProviderID}</cbc:CompanyID>\n\
-         </cac:PartyLegalEntity>\n\
-      </cac:Party>\n\
-   </cac:AccountingSupplierParty>\n\
-    ')
+        f"""<cac:AccountingSupplierParty>
+      <cbc:AdditionalAccountID>{AdditionalAccountID}</cbc:AdditionalAccountID>
+      <cac:Party>
+         <cac:PartyName>
+            <cbc:Name>{PartyName}</cbc:Name>
+         </cac:PartyName>
+         <cac:PhysicalLocation>
+            <cac:Address>
+               <cbc:ID>{PhysicalLocationID}</cbc:ID>
+               <cbc:CityName>{PhysicalLocationCityName}</cbc:CityName>
+               <cbc:CountrySubentity>{PhysicalLocationCountrySubentity}</cbc:CountrySubentity>
+               <cbc:CountrySubentityCode>{PhysicalLocationCountrySubentityCode}</cbc:CountrySubentityCode>
+               <cac:AddressLine>
+                  <cbc:Line>{PhysicalLocationAddressLine}</cbc:Line>
+               </cac:AddressLine>
+               <cac:Country>
+                  <cbc:IdentificationCode>{CountryIdentificationCode}</cbc:IdentificationCode>
+                  <cbc:Name languageID="es">{CountryName}</cbc:Name>
+               </cac:Country>
+            </cac:Address>
+         </cac:PhysicalLocation>
+         <cac:PartyTaxScheme>
+            <cbc:RegistrationName>{RegistrationName}</cbc:RegistrationName>
+            <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="{ProviderIDDV}" schemeName="31">{ProviderID}</cbc:CompanyID>
+            <cbc:TaxLevelCode listName="05">{TaxLevelCode}</cbc:TaxLevelCode>
+            <cac:RegistrationAddress>
+               <cbc:ID>{RegistrationAddressID}</cbc:ID>
+               <cbc:CityName>{RegistrationAddressCityName}</cbc:CityName>
+               <cbc:CountrySubentity>{RegistrationAddressCountrySubentity}</cbc:CountrySubentity>
+               <cbc:CountrySubentityCode>{RegistrationAddressCountrySubentityCode}</cbc:CountrySubentityCode>
+               <cac:AddressLine>
+                  <cbc:Line>{RegistrationAddressAddressLine}</cbc:Line>
+               </cac:AddressLine>
+               <cac:Country>
+                  <cbc:IdentificationCode>{RegistrationAddressCountryIdentificationCode}</cbc:IdentificationCode>
+                  <cbc:Name languageID="es">{RegistrationAddressCountryName}</cbc:Name>
+               </cac:Country>
+            </cac:RegistrationAddress>
+            <cac:TaxScheme>
+               <cbc:ID>{TaxSchemeID}</cbc:ID>
+               <cbc:Name>{TaxSchemeName}</cbc:Name>
+            </cac:TaxScheme>
+         </cac:PartyTaxScheme>
+         <cac:PartyLegalEntity>
+            <cbc:RegistrationName>{RegistrationName}</cbc:RegistrationName>
+            <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="{ProviderIDDV}" schemeName="31">{ProviderID}</cbc:CompanyID>
+         <cac:CorporateRegistrationScheme>
+               <cbc:ID>{Prefix}</cbc:ID>
+               <cbc:Name>10181</cbc:Name>
+            </cac:CorporateRegistrationScheme>
+         </cac:PartyLegalEntity>
+      </cac:Party>
+   </cac:AccountingSupplierParty>""")
