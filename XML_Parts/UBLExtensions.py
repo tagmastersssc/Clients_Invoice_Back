@@ -16,8 +16,7 @@ def UBLExtensions(
                     URL
                     ):
     return(
-        f'\
-   <ext:UBLExtensions>\n\
+        f'<ext:UBLExtensions>\n\
       <ext:UBLExtension>\n\
          <ext:ExtensionContent>\n\
             <sts:DianExtensions>\n\
