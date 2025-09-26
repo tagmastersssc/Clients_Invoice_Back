@@ -22,7 +22,8 @@ def AccountingSupplierParty(
                               RegistrationAddressCountryName,
                               TaxSchemeID,
                               TaxSchemeName,
-                              Prefix
+                              Prefix,
+                              MatriculaMercantil
                               ):
     return(
         f"""<cac:AccountingSupplierParty>
@@ -71,9 +72,9 @@ def AccountingSupplierParty(
          <cac:PartyLegalEntity>
             <cbc:RegistrationName>{RegistrationName}</cbc:RegistrationName>
             <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="{ProviderIDDV}" schemeName="31">{ProviderID}</cbc:CompanyID>
-         <cac:CorporateRegistrationScheme>
+            <cac:CorporateRegistrationScheme>
                <cbc:ID>{Prefix}</cbc:ID>
-               <cbc:Name>10181</cbc:Name>
+               <cbc:Name>{MatriculaMercantil}</cbc:Name>
             </cac:CorporateRegistrationScheme>
          </cac:PartyLegalEntity>
       </cac:Party>

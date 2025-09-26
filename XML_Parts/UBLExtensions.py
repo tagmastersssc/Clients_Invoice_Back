@@ -12,10 +12,6 @@ def UBLExtensions(
                     SoftwareSecurityCode,
                     AuthorizationProviderID,
                     AuthorizationProviderDV,
-                    ID,
-                    PartyIdentification,
-                    IssueDate,
-                    PayableAmount,
                     CUFE,
                     URL
                     ):
@@ -48,16 +44,9 @@ def UBLExtensions(
                <sts:AuthorizationProvider>\n\
                   <sts:AuthorizationProviderID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="{AuthorizationProviderDV}" schemeName="31">{AuthorizationProviderID}</sts:AuthorizationProviderID>\n\
                </sts:AuthorizationProvider>\n\
-               <sts:QRCode>NroFactura={ID}\n\
-								NitFacturador={ProviderID}\n\
-								NitAdquiriente={PartyIdentification}\n\
-								FechaFactura={IssueDate}\n\
-								ValorTotalFactura={PayableAmount}\n\
-								CUFE={CUFE}\n\
-								URL={URL}{CUFE}</sts:QRCode>\n\
+               <sts:QRCode>{URL}{CUFE}</sts:QRCode>\n\
             </sts:DianExtensions>\n\
          </ext:ExtensionContent>\n\
       </ext:UBLExtension>\n\
-   \n\
-   <ext:UBLExtension><ext:ExtensionContent>\n\
+   <ext:UBLExtension><ext:ExtensionContent></ext:ExtensionContent></ext:UBLExtension></ext:UBLExtensions>\n\
     ')

@@ -9,16 +9,17 @@ import XML_Parts.TaxTotal
 import XML_Parts.LegalMonetaryTotal
 import XML_Parts.InvoiceLine
 import XML_Parts.Signature
+import XML_Parts.GenerateSOAP
 import hashlib
 import requests
 import base64
-import uuid
 import zipfile
 import os
 from lxml import etree
 from datetime import datetime, timezone, timedelta
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import padding
+from cryptography.hazmat.primitives.serialization import pkcs12, Encoding
 
 #Pendiente
 #Todo debe llevar dos digitos, desde BD
@@ -33,13 +34,14 @@ StartDate               = "2019-01-19"      #Fecha desde, en página habilitacio
 EndDate                 = "2030-01-19"      #Fecha hasta, en página habilitacion de la Dian
 Prefix                  = "SETP"            #Prefijo, en página habilitacion de la Dian
 From                    = "990000000"       #Rango desde, en página habilitacion de la Dian
+InvoiceNumber           = int(From) + 6
 To                      = "995000000"       #Rango hasta, en página habilitacion de la Dian
 ProviderID              = "901923739"       #Nit de la compañía que genera la factura
 ProviderIDDV            = "3"               #Digito de verificacion del NIT
-SoftwareID              = "842d4a34-e39e-4968-af09-af5ca506b971" #Id, en página habilitacion de la Dian
+SoftwareID              = "63056b98-4f5d-4f73-94b7-196d535840dc" #Id, en página habilitacion de la Dian
 PIN                     = "12345"           #Pin, en página habilitacion de la Dian
 
-ID                      = Prefix + From #El From debería estar en un For, para ir aumentando el consecutivo
+ID                      = Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
 
 SoftwareSecurityCode    = SoftwareID + PIN + ID
 SoftwareSecurityCode    = SoftwareSecurityCode.encode()
@@ -52,138 +54,38 @@ URL                     = "https://catalogo-vpfe-hab.dian.gov.co/document/search
 
 #Signature
 
-
-
-UUID                        = uuid.uuid4()
-
 CanonicalizationMethod      = "http://www.w3.org/TR/2001/REC-xml-c14n-20010315"
 SignatureMethod             = "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
 TransformAlgorithm          = "http://www.w3.org/2000/09/xmldsig#enveloped-signature"
 DigestMethodAlgorithm       = "http://www.w3.org/2001/04/xmlenc#sha256"
-#Public cert generado con comando openssl en CERT/private_public_key.sh Y quitando encabezado y footer
-PublicCert                  = """MIIG6jCCBdKgAwIBAgIIe5xIbRWLEQ0wDQYJKoZIhvcNAQELBQAwgcUxJjAkBgNV
-BAMMHVNVQkNBIENBTUVSRklSTUEgQ09MT01CSUEgU0FTMRQwEgYDVQQFEws5MDEz
-MTIxMTItNDFAMD4GA1UECww3Q2VydGlmaWNhZG9zIFBhcmEgRmlybWEgRWxlY3Ry
-b25pY2EgQ2FtZXJmaXJtYSBDb2xvbWJpYTEgMB4GA1UECgwXQ0FNRVJGSVJNQSBD
-T0xPTUJJQSBTQVMxFDASBgNVBAcMC0JPR09UQSBELkMuMQswCQYDVQQGEwJDTzAe
-Fw0yNTA0MTUxNDMzNTNaFw0yNjA0MTUxNDMzNTJaMIGtMRkwFwYDVQQJDBBDYWxs
-ZSAxNDUgMTNBIDU3MRMwEQYDVQQUEwozMjAzMjkxNjcwMRQwEgYDVQQDDAtCSUxB
-SSBTLkEuUzETMBEGA1UEBRMKOTAxOTIzNzM5MzEcMBoGA1UECwwTRmFjdHVyYSBF
-bGVjdHJvbmljYTEUMBIGA1UECgwLQklMQUkgUy5BLlMxDzANBgNVBAgMBkJvZ290
-YTELMAkGA1UEBhMCQ08wggEiMA0GCSqGSIb3DQEBAQUAA4IBDwAwggEKAoIBAQCk
-1YCwwMJ288h8/wE8bDmUZRutDO8W+R61+17STSDlZUFKmFk5eEGorPkLXUAPIpL3
-NVK8S5O6MikxCe424cSevtDBAMhvzHnrJQ52I0Xu2cTGVVAo4yvM2RrU590NhAH0
-TlSQKGf1Wc/WsEQAH1zK4onuUEXqzxPmRqg5Sd2VJgtp8fSF1asLnrvtC/JCXwsZ
-/8oet3w6+mQ5IqLFBIZEVMEG9ECpQgmeyEM5hgqm0r7bLUGXzzvWXlc0+xs/UJCC
-DsiePH0BzJoWB8WMNi279pJj+BhRQNdYngV6g59sw8sqVezSlsBB+9MfhABSrQT4
-TVcG8kdI8ZGxmJ9qJ145AgMBAAGjggLyMIIC7jAMBgNVHRMBAf8EAjAAMB8GA1Ud
-IwQYMBaAFMCPn2uVGVZRNZ5UmMZ3l/0l2PbNMFsGCCsGAQUFBwEBBE8wTTBLBggr
-BgEFBQcwAYY/aHR0cDovL3BraWNvbC5jYW1lcmZpcm1hY29sb21iaWEuY28vZWpi
-Y2EvcHVibGljd2ViL3N0YXR1cy9vY3NwMBUGA1UdEQQOMAyICisGAQQBgYcuHgsw
-JwYDVR0lBCAwHgYIKwYBBQUHAwIGCCsGAQUFBwMEBggrBgEFBQcDATCCAe8GA1Ud
-HwEB/wSCAeMwggHfMIIB26CCAQmgggEFhoIBAWh0dHA6Ly9wa2ljb2wuY2FtZXJm
-aXJtYWNvbG9tYmlhLmNvL2VqYmNhL3B1YmxpY3dlYi93ZWJkaXN0L2NlcnRkaXN0
-P2NtZD1jcmwmaXNzdWVyPUNOJTNEU1VCQ0ErQ0FNRVJGSVJNQStDT0xPTUJJQStT
-QVMlMkNTTiUzRDkwMTMxMjExMi00JTJDT1UlM0RDZXJ0aWZpY2Fkb3MrUGFyYStG
-aXJtYStFbGVjdHJvbmljYStDYW1lcmZpcm1hK0NvbG9tYmlhJTJDTyUzRENBTUVS
-RklSTUErQ09MT01CSUErU0FTJTJDTCUzREJPR09UQStELkMuJTJDQyUzRENPooHL
-pIHIMIHFMSYwJAYDVQQDDB1TVUJDQSBDQU1FUkZJUk1BIENPTE9NQklBIFNBUzEL
-MAkGA1UEBhMCQ08xFDASBgNVBAcMC0JPR09UQSBELkMuMSAwHgYDVQQKDBdDQU1F
-UkZJUk1BIENPTE9NQklBIFNBUzFAMD4GA1UECww3Q2VydGlmaWNhZG9zIFBhcmEg
-RmlybWEgRWxlY3Ryb25pY2EgQ2FtZXJmaXJtYSBDb2xvbWJpYTEUMBIGA1UEBRML
-OTAxMzEyMTEyLTQwHQYDVR0OBBYEFMHkHAmKYrJTkXi+ypUSGLPYKw0YMA4GA1Ud
-DwEB/wQEAwIF4DANBgkqhkiG9w0BAQsFAAOCAQEAqHaGevtkSZQaT220mIMUwn8J
-DqMR9LxXj2CRIYWYr2NvpP68K7wN/+2CLdSqHR4/FC84NAAq7oANW+bEwQaTuuAJ
-qVfW2TXsPC7M8t1sEb+MemYSbf/zGGXWYOv1KCJAZdqypO918x/hFZuS/uDKSbgD
-7CLJBz7ERAhHoOc1yOUcRKTMVZbNwF29rugVIF//MbaLwKPG15V8uk/kFe0nsLQV
-QDd8ZudAUVPe1pvDX3AzAfVgMYaYkXzIRsfRpctg4sl0rlTZR+FjLLrVhFAtzs36
-LUx9umW2KeoaBr77lbgcPZnVyic0J7YWY9+gMrmPW/dRaaz1IogEMkb1kJyxPA=="""
+DigestMethodAlgorithmPolicy = "http://www.w3.org/2001/04/xmlenc#sha256"
 
-PrivateCertificate          = """MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQCk1YCwwMJ288h8
-/wE8bDmUZRutDO8W+R61+17STSDlZUFKmFk5eEGorPkLXUAPIpL3NVK8S5O6Mikx
-Ce424cSevtDBAMhvzHnrJQ52I0Xu2cTGVVAo4yvM2RrU590NhAH0TlSQKGf1Wc/W
-sEQAH1zK4onuUEXqzxPmRqg5Sd2VJgtp8fSF1asLnrvtC/JCXwsZ/8oet3w6+mQ5
-IqLFBIZEVMEG9ECpQgmeyEM5hgqm0r7bLUGXzzvWXlc0+xs/UJCCDsiePH0BzJoW
-B8WMNi279pJj+BhRQNdYngV6g59sw8sqVezSlsBB+9MfhABSrQT4TVcG8kdI8ZGx
-mJ9qJ145AgMBAAECggEACbblG4WnI4hai7aIeOpbIMb7F2Foj3U/I7Qc2OgSxQvV
-1tk26PXDz0N8EF9k8LKcI4jQ+qfs0BxrF3WUxHp2mNesfE0MT9dAZP6NS6K1WTS1
-+ocsojxBNWFvyck6DehDW59olgmYY61XXAYnYjQQk/E/j8jLVhTxZ0p8WTDK2yKH
-cszTpn/PfU47rGhONuWLpGsM5LRzJRJ+VC0m6rh2um2iZ/lTNoRXpo+qaP3r9dWX
-kKfHKqGX4Q+g1VGC3x1MCPqGdtPwJD6r9h6jc1IJTU3dV5v1QRus8jeJz0uZjHwi
-6GxZnlT65IXiQ7resARr4zKYrea6zrrqJq1hkCi8wQKBgQDPhDdXnor1p/Ds7ez6
-xQvlEkmdz0QFt/s4yFhse4+f1Vs/O/2CI+KaT91JB7n/2cWTlarS2dameP6fKLCf
-HnxxUwFnCmtRZoRZEfIqZ5QPThDvzHrF5vN41jCdMoVR7+gnDlQfLiRJc8dTRpp5
-QM0Fw7R6zP/jZSst84da1v9JawKBgQDLWGbU43TxZEELX/9L9OjupiDFP3RtZZDd
-y6eKmoS2GJMP8x7v8yl4xCVzk3H/T5mJc8o9KfvPg+bpI3dUowtgTjhC8iWL/fxP
-VUA9REvOuZCD5jJyot7IsnzxDfHW0Hih5fjCiqoO4oPMM3SAnyMUH0agznQKPEOS
-7zLege4r6wKBgDkC1QWAbCLjWcBt+V5HxmXPqWPurnx3uFA4UnqzU5kQz7nGrHYV
-j8rfSCcpNUOCO9K5Gq5E5MDlmuZ1ElkU0hF8QXVimmtJo/CoioR14mp2AxcucUhv
-k9JN3htB5vjE1V3thNTwI03+vfM2AXhwgiMkSjA2o9KAV+WO80/Uo1wzAoGAeObo
-zS8oOtY27kJ3knvdevd/iIe/+8NlrNoHlZtlyLc3yUXuYRCc2dcVxXAnWXvEeDtG
-RbOOqsVsJ7YUn1gJzYr0XKmItYGf4LN5bHQM9q7SQ/o8iHhaKc4mB1UZM3XkI66O
-h2zWy97WKjV10XvM6Yvm/HmD+Qn3y4c5IZ7zM10CgYAJpWYCQ+IeEIpTu6WBE5+P
-5l8jHPC3vx53hN/i+QTr+o9BB68XyhU+9JrL0vhznDLN9Fi4O0/Yynay1ZRJplBs
-WIXDV9jIKx9ittM2VIsi+D+4qODcWlvWZZcbdAWqMghBlBzW9BINMgi4itHZuhQv
-RUa1f6QohNBmayVZeR79SQ=="""
+p12_path = "CERT/BILAI S.A.S.p12"
+password = "VsQkyWgLqSuZEJoC"
+with open(p12_path, "rb") as f:
+    p12_data = f.read()
+private_key, cert, additional_certs = pkcs12.load_key_and_certificates(
+    p12_data, password.encode()
+)
+cert_der = cert.public_bytes(encoding=serialization.Encoding.DER)
+PublicCertOneLine           = base64.b64encode(cert_der).decode()
 
-KeyInfo                     = f"""<ds:KeyInfo Id="{UUID}-KeyInfo" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-<ds:X509Data>
-<ds:X509Certificate>
-{PublicCert}
-</ds:X509Certificate>
-</ds:X509Data>
-</ds:KeyInfo>"""
 
 tz = timezone(timedelta(hours=-5))
 now = datetime.now(tz)
 SigningTimeFormatted = now.strftime("%Y-%m-%dT%H:%M:%S.%f")[:-3] + now.strftime("%z")
 SigningTimeFormatted = SigningTimeFormatted[:-2] + ":" + SigningTimeFormatted[-2:]
 
-DigestValuePublicCert           = base64.b64encode(hashlib.sha256(PublicCert.encode("utf-8")).digest()).decode("utf-8")
 
-#Issuer Name generado con comando openssl en CERT/private_public_key.sh hay que ordenarlo despues del comando
-IssuerName                  = "C=CO,L=BOGOTA D.C.,O=CAMERFIRMA COLOMBIA SAS,OU=Certificados Para Firma Electronica Camerfirma Colombia,CN=SUBCA CAMERFIRMA COLOMBIA SAS,serialNumber=901312112-4"
-IssuerSerial                = "7B9C486D158B110D"
+DigestValuePublicCert           = digest_b64 = base64.b64encode(hashlib.sha256(cert_der).digest()).decode()
+
+IssuerName                  = cert.issuer.rfc4514_string()
+IssuerSerial                = cert.serial_number
 SignPolicyURL               = "https://facturaelectronica.dian.gov.co/politicadefirma/v2/politicadefirmav2.pdf"
 DownloadedSignPolicy        = requests.get(SignPolicyURL)
 DownloadedSignPolicy.raise_for_status()
 DigestValueSigPolicyHash    = base64.b64encode(hashlib.sha256(DownloadedSignPolicy.content).digest()).decode("utf-8")
 SignerRole                  = "supplier"
-#Pendiente revisar si hay que agregar varios certificados
-SignedProperties            = f"""<xades:SignedProperties Id="xmldsig-{UUID}-signedprops" xmlns:xades="http://uri.etsi.org/01903/v1.3.2#" xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
-<xades:SignedSignatureProperties>
-<xades:SigningTime>{SigningTimeFormatted}</xades:SigningTime>
-<xades:SigningCertificate>
-<xades:Cert>
-<xades:CertDigest>
-<ds:DigestMethod Algorithm="{DigestMethodAlgorithm}"/>
-<ds:DigestValue>{DigestValuePublicCert}</ds:DigestValue>
-</xades:CertDigest>
-<xades:IssuerSerial>
-<ds:X509IssuerName>{IssuerName}</ds:X509IssuerName>
-<ds:X509SerialNumber>{IssuerSerial}</ds:X509SerialNumber>
-</xades:IssuerSerial>
-</xades:Cert>
-</xades:SigningCertificate>
-<xades:SignaturePolicyIdentifier>
-<xades:SignaturePolicyId>
-<xades:SigPolicyId>
-<xades:Identifier>{SignPolicyURL}</xades:Identifier>
-</xades:SigPolicyId>
-<xades:SigPolicyHash>
-<ds:DigestMethod Algorithm="{DigestMethodAlgorithm}"/>
-<ds:DigestValue>{DigestValueSigPolicyHash}</ds:DigestValue>
-</xades:SigPolicyHash>
-</xades:SignaturePolicyId>
-</xades:SignaturePolicyIdentifier>
-<xades:SignerRole>
-<xades:ClaimedRoles>
-<xades:ClaimedRole>{SignerRole}</xades:ClaimedRole>
-</xades:ClaimedRoles>
-</xades:SignerRole>
-</xades:SignedSignatureProperties>
-</xades:SignedProperties>"""
-
 
 
 #****Signature
@@ -199,7 +101,7 @@ IssueTime                   = IssueTime[:-2] + ":" + IssueTime[-2:]
 InvoiceTypeCode             = "01" #01	Factura electrónica de Venta, 02	Factura electrónica de venta -exportación, 03	Instrumento electrónico de transmisión – tipo 03, 04	Factura electrónica de Venta - tipo 04, 91	Nota Crédito, 92	Nota Débito, 96	Eventos (ApplicationResponse) Tabla 13.1.3
 Note                        = "SETP9900000022019-06-2009:15:23-05:0012600.06012424.01040.00030.0014024.07900508908900108281fc8eac422eba16e22ffd8c6f94b3f40a6e38162c2" #Temporal, no es necesario
 DocumentCurrencyCode        = "COP"
-LineCountNumeric            = "2" #Número o cantidad de elementos InvoiceLine de la factura
+LineCountNumeric            = "1" #Número o cantidad de elementos InvoiceLine de la factura
 InvoicePeriodStartDate      = "2019-05-01" #Automatizar
 InvoicePeriodEndDate        = "2019-05-30" #Automatizar
 BillingReference            = "" #Solo para documento con nota credito sacar modelo de generica.xml
@@ -217,9 +119,12 @@ PhysicalLocationCountrySubentityCode            = "11" #Codigo departamento, tab
 PhysicalLocationAddressLine                     = "Av. #97 - 13" #Informar la dirección, sin ciudad ni departamento
 CountryIdentificationCode                       = "CO" 
 CountryName                                     = "Colombia"
-RegistrationName                                = "DIAN" #Nombre registrado en el RUT
-TaxLevelCode                                    = ["O-13","0-15"] #Obligaciones o responsabilidades del contribuyente; incluye el régimen al que pertenece el emisor,  varios ej. O-13;O-15;//// tabla 13.2.6.1 O-13	Gran contribuyente, O-15	Autorretenedor, O-23	Agente de retención IVA, O-47	Régimen simple de tributación, R-99-PN	No aplica – Otros *
-TaxLevelCode                                    = ';'.join(TaxLevelCode) + ";"
+RegistrationName                                = "BILAI S.A.S" #Nombre registrado en el RUT
+TaxLevelCode                                    = ["O-47"] #Obligaciones o responsabilidades del contribuyente; incluye el régimen al que pertenece el emisor,  varios ej. O-13;O-15;//// tabla 13.2.6.1 O-13	Gran contribuyente, O-15	Autorretenedor, O-23	Agente de retención IVA, O-47	Régimen simple de tributación, R-99-PN	No aplica – Otros *
+if len(TaxLevelCode) > 1:
+    TaxLevelCode = ';'.join(TaxLevelCode) + ";"
+else:
+    TaxLevelCode = TaxLevelCode[0]
 RegistrationAddressID                           = PhysicalLocationID #Cambiar si la direccion fiscal del emisor es diferente
 RegistrationAddressCityName                     = PhysicalLocationCityName #Cambiar si la direccion fiscal del emisor es diferente
 RegistrationAddressCountrySubentity             = PhysicalLocationCountrySubentity #Cambiar si la direccion fiscal del emisor es diferente
@@ -228,8 +133,8 @@ RegistrationAddressAddressLine                  = PhysicalLocationAddressLine #C
 RegistrationAddressCountryIdentificationCode    = CountryIdentificationCode #Cambiar si la direccion fiscal del emisor es diferente
 RegistrationAddressCountryName                  = CountryName #Cambiar si la direccion fiscal del emisor es diferente
 TaxSchemeID                                     = "01" #Identificador del tributo tabla 13.2.6.2 //// 01	IVA 04	INC ZA	IVA e INC ZZ 	No aplica *
+MatriculaMercantil                              = "3930757" # https://www.rues.org.co/buscar/RM/ Nit al final
 TaxSchemeName                                   = "IVA" #Nombre del tributo tabla 13.2.6.2 //// 01	IVA 04	INC ZA	IVA e INC ZZ 	No aplica *
-MatriculaMercantil                              = "3930757" #https://www.rues.org.co/buscar/RM/ Nit al final
 #Contact se eliminó etiqueta
 
 #****AccountingSupplierParty 
@@ -245,6 +150,7 @@ PartyIdentification                                     = "1014262008" # Si es n
 #Elimino bloque RegistrationAddress documentacion manda opcional
 CustomerTaxSchemeID                                     = "ZZ" #Identificador del tributo del adquiriente tabla 13.2.6.2 //// 01	IVA 04	INC ZA	IVA e INC ZZ 	No aplica *   ////Consumidor final ZZ
 CustomerTaxSchemeName                                   = "No aplica" #Nombre del tributo tabla 13.2.6.2 //// 01	IVA 04	INC ZA	IVA e INC ZZ 	No aplica * ////Consumidor final No aplica
+CustomerTaxLevelCode                                    = "R-99-PN" #Obligaciones o responsabilidades del contribuyente; incluye el régimen al que pertenece el emisor,  varios ej. O-13;O-15;//// tabla 13.2.6.1 O-13	Gran contribuyente, O-15	Autorretenedor, O-23	Agente de retención IVA, O-47	Régimen simple de tributación, R-99-PN	No aplica – Otros *
 #Elimino bloque CorporateRegistrationScheme
 #Elimino bloque Contact
 
@@ -256,8 +162,8 @@ CustomerTaxSchemeName                                   = "No aplica" #Nombre de
 
 #PaymentMeans //// Formas de pago , pendiente agregar varios, documentación indica 1..N
 
-PaymentMeansID                  = "2" #Formas de pago tabla 13.3.4.1 // 1	Contado 2	Crédito
-PaymentMeansCode                = "41" #Código correspondiente al medio de pago tabla 13.3.4.2
+PaymentMeansID                  = "1" #Formas de pago tabla 13.3.4.1 // 1	Contado 2	Crédito
+PaymentMeansCode                = "91" #Código correspondiente al medio de pago tabla 13.3.4.2
 PaymentDueDate                  = "2019-06-30" #Fecha de vencimiento de la factura, Obligatorio si es venta a crédito
 #Elimino bloque PaymentID, documentacion manda opcional
 
@@ -268,25 +174,25 @@ PaymentDueDate                  = "2019-06-30" #Fecha de vencimiento de la factu
 #TaxTotal Grupo de campos para información totales relacionadas con un tributo
 #Despues del POC revisar, pueden haber varios taxtotal, cada uno con varios taxsubtotal, se debe calcular automatico todo lo de adentro
 
-TaxAmount                       = "0.00" #Valor del tributo //// Suma de todos los elementos ../cac:TaxTotal/TaxSubtotal/cbc :TaxAmount
+TaxAmount                       = "215.55" #Valor del tributo //// Suma de todos los elementos ../cac:TaxTotal/TaxSubtotal/cbc :TaxAmount
 currencyID                      = "COP" #Código de moneda de la transacción tabla 13.3.3
-TaxableAmount                   = "0.00" #Base Imponible sobre la que se calcula el valor del tributo
-TaxSubtotalTaxAmount            = "0.00" #Valor del tributo: producto del porcentaje aplicado sobre la base imponible
-Percent                         = "0.00" #Tarifa del tributo tabla 13.3.11
-TaxSubtotalTaxSchemeID          = "03" #Identificador del tributo
-TaxSubtotalTaxSchemeName        = "ICA" #Nombre del tributo
+TaxableAmount                   = "1134.45" #Base Imponible sobre la que se calcula el valor del tributo
+TaxSubtotalTaxAmount            = "215.55" #Valor del tributo: producto del porcentaje aplicado sobre la base imponible
+Percent                         = "19.00" #Tarifa del tributo tabla 13.3.11
+TaxSubtotalTaxSchemeID          = "01" #Identificador del tributo
+TaxSubtotalTaxSchemeName        = "IVA" #Nombre del tributo
 
 #****TaxTotal
 
 #LegalMonetaryTotal   //// Grupo de campos para información relacionadas con los valores totales aplicables a la factura
 
-LineExtensionAmount             = "12600.06" # Total Valor Bruto antes de tributos: Total valor bruto, suma de los valores brutos de las líneas de la factura.
-TaxExclusiveAmount              = "12787.56" # Total Valor Base Imponible : Base imponible para el cálculo de los tributos
-TaxInclusiveAmount              = "15024.07" #Total de Valor Bruto más tributos
+LineExtensionAmount             = "1134.45" # Total Valor Bruto antes de tributos: Total valor bruto, suma de los valores brutos de las líneas de la factura.
+TaxExclusiveAmount              = "1134.45" # Total Valor Base Imponible : Base imponible para el cálculo de los tributos
+TaxInclusiveAmount              = "1350.00" #Total de Valor Bruto más tributos
 #AllowanceTotalAmount Descuento Total: Suma de todos los descuentos aplicados a nivel de la factura
 #ChargeTotalAmount Cargo Total: Suma de todos los cargos aplicados a nivel de la factura
 #PrePaidAmount Anticipo Total: Suma de todos los pagos anticipados
-PayableAmount                   = "15024.07" #Valor de la Factura: Valor total de ítems (incluyendo cargos y descuentos a nivel de ítems)+valor tributos + valor cargos – valor descuentos.
+PayableAmount                   = "1350.00" #Valor de la Factura: Valor total de ítems (incluyendo cargos y descuentos a nivel de ítems)+valor tributos + valor cargos – valor descuentos.
 
 #****LegalMonetaryTotal
 
@@ -296,9 +202,9 @@ PayableAmount                   = "15024.07" #Valor de la Factura: Valor total d
 InvoiceLineID                               = "1" #Número de Línea debe ser incremental
 #schemeID Obligatorio cuando se informe el tipo de operación “11”: Valida los posibles valores en el numera . 13.3.12
 # Note Información Adicional: Texto libre para añadir información adicional al artículo.
-InvoicedQuantity                            = "1.000000" #Cantidad del producto o servicio ////Revisar si debe ser solo 1, 
-unitCode                                    = "EA" #Identificación de la unidad de medida tabla 13.3.6
-InvoiceLineLineExtensionAmount              = "12600.06" #Valor total de la línea. //// El Valor Total de la línea es igual al producto de Cantidad x Precio Unidad menos Descuentos más Recargos que apliquen para la línea.
+InvoicedQuantity                            = "1.00" #Cantidad del producto o servicio ////Revisar si debe ser solo 1, 
+unitCode                                    = "ZZ" #Identificación de la unidad de medida tabla 13.3.6
+InvoiceLineLineExtensionAmount              = "1134.45" #Valor total de la línea. //// El Valor Total de la línea es igual al producto de Cantidad x Precio Unidad menos Descuentos más Recargos que apliquen para la línea.
 #Elimino FreeOfChargeIndicator no aparece en la documentación
 #Elimino Bloque Delivery no aparece en la documentación
 #AllowanceCharge Grupo de campos para información relacionadas con un cargo o un descuento //Pueden ser varios
@@ -309,32 +215,32 @@ MultiplierFactorNumeric                     = "33.33" #Porcentaje que aplicar.
 Amount                                      = "6299.94" #Valor total del cargo o descuento
 BaseAmount                                  = "18900.00" #Valor Base para calcular el descuento el cargo
 #TaxTotal Grupo de campos para información relacionadas con un tributo aplicable a esta línea de la factura
-InvoiceLineTaxAmount                        = "2394.01" #Valor del tributo //// Suma de todos los elementos ../cac:TaxTotal/TaxSubtotal/cbc :TaxAmount
+InvoiceLineTaxAmount                        = "215.55" #Valor del tributo //// Suma de todos los elementos ../cac:TaxTotal/TaxSubtotal/cbc :TaxAmount
 InvoiceLinecurrencyID                       = "COP" #Código de moneda de la transacción tabla 13.3.3
-InvoiceLineTaxableAmount                    = "12600.06" #Base Imponible sobre la que se calcula el valor del tributo
-InvoiceLineTaxSubtotalTaxAmount             = "2394.01" #Valor del tributo: producto del porcentaje aplicado sobre la base imponible
+InvoiceLineTaxableAmount                    = "1134.45" #Base Imponible sobre la que se calcula el valor del tributo
+InvoiceLineTaxSubtotalTaxAmount             = "215.55" #Valor del tributo: producto del porcentaje aplicado sobre la base imponible
 InvoiceLinePercent                          = "19.00" #Tarifa del tributo tabla 13.3.11
-InvoiceLineTaxSubtotalTaxSchemeID           = "03" #Identificador del tributo
-InvoiceLineTaxSubtotalTaxSchemeName         = "ICA" #Nombre del tributo
+InvoiceLineTaxSubtotalTaxSchemeID           = "01" #Identificador del tributo
+InvoiceLineTaxSubtotalTaxSchemeName         = "IVA" #Nombre del tributo
 #****TaxTotalInvoiceLine
 #Item Grupo de información que describen las características del artículo o servicio
 ItemDescription                             = "AV OASYS -2.25 (8.4) LENTE DE CONTATO" #Descripción del artículo o servicio a que se refiere esta línea de la factura
 #Elimino bloque SellersItemIdentification , documentacion manda opcional
 #Elimino bloque AdditionalItemIdentification , documentacion manda opcional
 #Price Grupo de información que describen los precios del artículo o servicio
-PriceAmount                                 = "18900.00" #Valor del artículo o servicio
-BaseQuantity                                = "1.000000" #La cantidad real sobre la cual el precio aplica
-BaseQuantityUnitCode                        = "EA" #Identificación de la unidad de medida tabla 13.3.6
+PriceAmount                                 = "1134.45" #Valor del artículo o servicio
+BaseQuantity                                = "1.00" #La cantidad real sobre la cual el precio aplica
+BaseQuantityUnitCode                        = "ZZ" #Identificación de la unidad de medida tabla 13.3.6
 
 #****InvoiceLine
 
 CodImp1                                     = "01" #01 Este valor es fijo.
-ValImp1                                     = "0.00" #Valor impuesto 01 - IVA    // Revisar, se deben sumar todos los impuestos de algún lado, seguramente de TaxSubtotal
+ValImp1                                     = "215.55" #Valor impuesto 01 - IVA    // Revisar, se deben sumar todos los impuestos de algún lado, seguramente de TaxSubtotal
 CodImp2                                     = "04" #04 Este valor es fijo.
 ValImp2                                     = "0.00" #Valor impuesto 04 - Impuesto Nacional al Consumo    // Revisar, se deben sumar todos los impuestos de algún lado, seguramente de TaxSubtotal
 CodImp3                                     = "03" #03 Este valor es fijo.
 ValImp3                                     = "0.00" #Valor impuesto 03 - ICA    // Revisar, se deben sumar todos los impuestos de algún lado, seguramente de TaxSubtotal
-ClTec                                       = "" #Extraer de página de la DIAN // Clave tecnica // pendiente
+ClTec                                       = "fc8eac422eba16e22ffd8c6f94b3f40a6e38162c" #Extraer de página de la DIAN // Llave tecnica TechnicalKey
 
 #Construcción CUFE
 CUFE                        = ID + IssueDate + IssueTime + LineExtensionAmount + CodImp1 + ValImp1 + CodImp2 + ValImp2 + CodImp3 + ValImp3 + PayableAmount + ProviderID + PartyIdentification + ClTec + ProfileExecutionID
@@ -356,10 +262,6 @@ UBLExtensions                   = XML_Parts.UBLExtensions.UBLExtensions(
                                     SoftwareSecurityCode,
                                     AuthorizationProviderID,
                                     AuthorizationProviderDV,
-                                    ID,
-                                    PartyIdentification,
-                                    IssueDate,
-                                    PayableAmount,
                                     CUFE,
                                     URL
                                 )   
@@ -405,6 +307,7 @@ AccountingSupplierParty         = XML_Parts.AccountingSupplierParty.AccountingSu
                                     TaxSchemeID,
                                     TaxSchemeName,
                                     Prefix,
+                                    MatriculaMercantil
                                 )
 
 AccountingCustomerParty         = XML_Parts.AccountingCustomerParty.AccountingCustomerParty(
@@ -413,7 +316,8 @@ AccountingCustomerParty         = XML_Parts.AccountingCustomerParty.AccountingCu
                                     PartyIdentificationType,
                                     PartyIdentification,
                                     CustomerTaxSchemeID,
-                                    CustomerTaxSchemeName
+                                    CustomerTaxSchemeName,
+                                    CustomerTaxLevelCode
                                 )
 
 PaymentMeans                    = XML_Parts.PaymentMeans.PaymentMeans(
@@ -489,85 +393,74 @@ f = open("Invoice.xml", "w")
 f.write(XML)
 f.close()
 
-#Canonicalizar XML full, generar en Invoice_c14n.xml y generar el digest value full
+#Canonicalizar XML full, y generar el digest value full
 
-InvoiceCanonicalXml = etree.tostring(etree.parse("Invoice.xml").getroot(), method="c14n", exclusive=False)
-
-with open("Invoice_c14n.xml", "wb") as f: #Esto se puede eliminar
+InvoiceCanonicalXml         = etree.tostring(etree.fromstring(XML.encode("utf-8")), method="c14n", exclusive=False)
+with open("Invoice_c14n.xml", "wb") as f:
     f.write(InvoiceCanonicalXml)
 
-DigestValueAllC14nInvoice =  base64.b64encode(hashlib.sha256(InvoiceCanonicalXml).digest()).decode("utf-8")
+DigestValueAllC14nInvoice   =  base64.b64encode(hashlib.sha256(InvoiceCanonicalXml).digest()).decode("utf-8")
 
-#Canonicalizar KeyInfo, generar digest value de keyinfo
+#Insertar bloque con valores incorrectos
+DigestValueKeyInfo          =  ""
+DigestValueSignedProperties =  ""
+SignatureValue              =  ""
 
-f = open("KeyInfo.xml", "w")
-f.write(KeyInfo)
-f.close()
+KeyInfo                     = f"""<ds:KeyInfo Id="KeyInfo" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:xades="http://uri.etsi.org/01903/v1.3.2#"><ds:X509Data><ds:X509Certificate>{PublicCertOneLine}</ds:X509Certificate></ds:X509Data></ds:KeyInfo>"""
 
-KeyInfoCanonicalXml = etree.tostring(etree.parse("KeyInfo.xml").getroot(), method="c14n", exclusive=False)
+SignedProperties            = f"""<xades:SignedProperties Id="xmldsig-f1a488a1-61f3-4856-b35b-b5d4211b75ee-signedprops">
+<xades:SignedSignatureProperties>
+<xades:SigningTime>{SigningTimeFormatted}</xades:SigningTime>
+<xades:SigningCertificate>
+<xades:Cert>
+<xades:CertDigest>
+<ds:DigestMethod Algorithm="{DigestMethodAlgorithm}"/>
+<ds:DigestValue>{DigestValuePublicCert}</ds:DigestValue>
+</xades:CertDigest>
+<xades:IssuerSerial>
+<ds:X509IssuerName>{IssuerName}</ds:X509IssuerName>
+<ds:X509SerialNumber>{IssuerSerial}</ds:X509SerialNumber>
+</xades:IssuerSerial>
+</xades:Cert>
+</xades:SigningCertificate>
+<xades:SignaturePolicyIdentifier>
+<xades:SignaturePolicyId>
+<xades:SigPolicyId>
+<xades:Identifier>{SignPolicyURL}</xades:Identifier>
+</xades:SigPolicyId>
+<xades:SigPolicyHash>
+<ds:DigestMethod Algorithm="{DigestMethodAlgorithmPolicy}"/>
+<ds:DigestValue>{DigestValueSigPolicyHash}</ds:DigestValue>
+</xades:SigPolicyHash>
+</xades:SignaturePolicyId>
+</xades:SignaturePolicyIdentifier>
+<xades:SignerRole>
+<xades:ClaimedRoles>
+<xades:ClaimedRole>{SignerRole}</xades:ClaimedRole>
+</xades:ClaimedRoles>
+</xades:SignerRole>
+</xades:SignedSignatureProperties>
+</xades:SignedProperties>"""
 
-with open("KeyInfo_c14n.xml", "wb") as f: #Esto se puede eliminar
-    f.write(KeyInfoCanonicalXml)
-
-DigestValueKeyInfo =  base64.b64encode(hashlib.sha256(KeyInfoCanonicalXml).digest()).decode("utf-8")
-
-#Canonicalizar SignedProperties, generar digest value de SignedProperties
-
-f = open("SignedProperties.xml", "w")
-f.write(SignedProperties)
-f.close()
-
-SignedPropertiesCanonicalXml = etree.tostring(etree.parse("SignedProperties.xml").getroot(), method="c14n", exclusive=False)
-
-with open("SignedProperties_c14n.xml", "wb") as f: #Esto se puede eliminar
-    f.write(SignedPropertiesCanonicalXml)
-
-DigestValueSignedProperties =  base64.b64encode(hashlib.sha256(SignedPropertiesCanonicalXml).digest()).decode("utf-8")
-
-SignedInfo                  = f"""<ds:SignedInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#">
+SignedInfo                  = f"""<ds:SignedInfo>
 <ds:CanonicalizationMethod Algorithm="{CanonicalizationMethod}"/>
 <ds:SignatureMethod Algorithm="{SignatureMethod}"/>
-<ds:Reference URI="">
+<ds:Reference URI="#KeyInfo">
+<ds:DigestMethod Algorithm="{DigestMethodAlgorithm}"/>
+<ds:DigestValue>{DigestValueKeyInfo}</ds:DigestValue>
+</ds:Reference>
+<ds:Reference Id="xmldsig-f1a488a1-61f3-4856-b35b-b5d4211b75ee-ref0" URI="">
 <ds:Transforms>
 <ds:Transform Algorithm="{TransformAlgorithm}"/>
 </ds:Transforms>
 <ds:DigestMethod Algorithm="{DigestMethodAlgorithm}"/>
 <ds:DigestValue>{DigestValueAllC14nInvoice}</ds:DigestValue>
 </ds:Reference>
-<ds:Reference URI="#{UUID}-KeyInfo">
-<ds:DigestMethod Algorithm="{DigestMethodAlgorithm}"/>
-<ds:DigestValue>{DigestValueKeyInfo}</ds:DigestValue>
-</ds:Reference>
-<ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#xmldsig-{UUID}-signedprops">
+<ds:Reference Type="http://uri.etsi.org/01903#SignedProperties" URI="#xmldsig-f1a488a1-61f3-4856-b35b-b5d4211b75ee-signedprops">
 <ds:DigestMethod Algorithm="{DigestMethodAlgorithm}"/>
 <ds:DigestValue>{DigestValueSignedProperties}</ds:DigestValue>
 </ds:Reference>
 </ds:SignedInfo>"""
-
-#Canonicalizar SignedInfo, generar digest value de SignedInfo
-
-f = open("SignedInfo.xml", "w")
-f.write(SignedInfo)
-f.close()
-
-SignedInfoCanonicalXml = etree.tostring(etree.parse("SignedInfo.xml").getroot(), method="c14n", exclusive=False)
-
-with open("SignedInfo_c14n.xml", "wb") as f: #Esto se puede eliminar
-    f.write(SignedInfoCanonicalXml)
-
-#Firmar
-
-DerDataPrivKey = base64.b64decode(PrivateCertificate)
-private_key = serialization.load_der_private_key(
-    DerDataPrivKey,
-    password=None,
-)
-SignedInfoSignature = private_key.sign(
-    SignedInfoCanonicalXml,
-    padding.PKCS1v15(),
-    hashes.SHA256()
-)
-SignatureValue = base64.b64encode(SignedInfoSignature).decode("utf-8")
 
 Signature                       = XML_Parts.Signature.Signature(
                                     KeyInfo,
@@ -576,29 +469,107 @@ Signature                       = XML_Parts.Signature.Signature(
                                     SignatureValue
                                 )
 
-#Añade bloque signature a factura incial
+# #Añade bloque signature
 InvoiceCanonicalXmlTree = etree.fromstring(InvoiceCanonicalXml)
 ns = {"ext": "urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"}
 InvoiceExtensionContents = InvoiceCanonicalXmlTree.findall(".//ext:ExtensionContent", namespaces=ns)
 SecondExtensionContent = InvoiceExtensionContents[1]
-FragmentSignature = etree.fromstring(Signature)
-SecondExtensionContent.append(FragmentSignature)
-NewXmlString = etree.tostring(InvoiceCanonicalXmlTree, method="c14n", exclusive=False)
+SecondExtensionContent.append(etree.fromstring(Signature))
 
-with open("Invoice_c14n.xml", "wb") as f: #Esto se puede eliminar
-    f.write(NewXmlString)
+
+SignatureCanonicalXmlTree = etree.fromstring(Signature)
+#Calcular DigestValue KeyInfo y remplazar en factura
+
+ns = {"ds": "http://www.w3.org/2000/09/xmldsig#"}
+keyinfo_node = InvoiceCanonicalXmlTree.find(".//ds:KeyInfo", namespaces=ns)
+
+CanonicalKeyInfo = etree.tostring(
+    keyinfo_node,
+    method="c14n",
+    exclusive=False,
+    with_comments=False,
+    inclusive_ns_prefixes=None
+)
+
+DigestValueKeyInfo          = base64.b64encode(hashlib.sha256(CanonicalKeyInfo).digest()).decode("utf-8")
+KeyInfoReferenceNode        = SignatureCanonicalXmlTree.xpath(".//ds:Reference[@URI='#KeyInfo']", namespaces=ns)
+DigestNode                  = KeyInfoReferenceNode[0].find("ds:DigestValue", namespaces=ns)
+DigestNode.text             = DigestValueKeyInfo
+
+#Calcular DigestValue SignedProperties y remplazar en factura
+
+ns = {"xades": "http://uri.etsi.org/01903/v1.3.2#"}
+SignedPropertiesNode = InvoiceCanonicalXmlTree.find(".//xades:SignedProperties", namespaces=ns)
+CanonicalSignedProperties = etree.tostring(
+    SignedPropertiesNode,
+    method="c14n",
+    exclusive=False,
+    with_comments=False,
+    inclusive_ns_prefixes=None
+)
+DigestValueSignedProperties         = base64.b64encode(hashlib.sha256(CanonicalSignedProperties).digest()).decode("utf-8")
+ns = {"ds": "http://www.w3.org/2000/09/xmldsig#"}
+SignedPropertiesReferenceNode       = SignatureCanonicalXmlTree.xpath(".//ds:Reference[@URI='#xmldsig-f1a488a1-61f3-4856-b35b-b5d4211b75ee-signedprops']", namespaces=ns)
+DigestNode                          = SignedPropertiesReferenceNode[0].find("ds:DigestValue", namespaces=ns)
+DigestNode.text                     = DigestValueSignedProperties
+
+#Canonicalizar SignedInfo
+
+ns = {"ds": "http://www.w3.org/2000/09/xmldsig#"}
+SignedInfoNode = InvoiceCanonicalXmlTree.find(".//ds:SignedInfo", namespaces=ns)
+SignedInfoCanonicalXml = etree.tostring(
+    SignedInfoNode,
+    method="c14n",
+    exclusive=False,
+    with_comments=False,
+    inclusive_ns_prefixes=None
+)
+
+
+
+#Firmar
+
+SignedInfoSignature = private_key.sign(
+    SignedInfoCanonicalXml,
+    padding.PKCS1v15(),
+    hashes.SHA256()
+)
+SignatureValue = base64.b64encode(SignedInfoSignature).decode("utf-8")
+
+#Cambiar SignatureValue en factura
+ns = {"ds": "http://www.w3.org/2000/09/xmldsig#"}
+SignatureValueNode                  = SignatureCanonicalXmlTree.find(".//ds:SignatureValue", namespaces=ns)
+SignatureValueNode.text             = SignatureValue
+
+
+signature_str = etree.tostring(SignatureCanonicalXmlTree, encoding='UTF-8').decode('utf-8')
+
+signed_invoice = XML.replace(
+            "<ext:ExtensionContent></ext:ExtensionContent>", 
+            f"<ext:ExtensionContent>{signature_str}</ext:ExtensionContent>"
+        )
+
+
+
+
+
+
+# NewXmlString = etree.tostring(signed_invoice, encoding="utf-8")
+
+with open("Invoice_c14n_Sig.xml", "w", encoding="utf-8") as f:
+    f.write(signed_invoice)
 
 #Mostrarlo bonito ///Eliminar
 from xml.dom import minidom
-dom = minidom.parseString(NewXmlString)
+dom = minidom.parseString(signed_invoice)
 pretty_xml = dom.toprettyxml()
 with open("invoice_c14n_pretty.xml", "w", encoding="utf-8") as f:
     f.write(pretty_xml)
 #####
 
 #Comprimir XML en Zip
-FileToZip = "Invoice_c14n.xml"
-DestinationZip = "Invoice_c14n.zip"
+FileToZip = "Invoice_c14n_Sig.xml"
+DestinationZip = "Invoice_c14n_Sig.zip"
 
 with zipfile.ZipFile(DestinationZip, "w", zipfile.ZIP_DEFLATED) as zipf:
     zipf.write(FileToZip, os.path.basename(FileToZip))
@@ -606,14 +577,50 @@ with zipfile.ZipFile(DestinationZip, "w", zipfile.ZIP_DEFLATED) as zipf:
 with open(DestinationZip, "rb") as f:
     ZipBase64 = base64.b64encode(f.read()).decode("utf-8")
 
-print(ZipBase64)
+SOAPNow                     = datetime.now(timezone.utc)
+TimestampCreated            = SOAPNow.strftime("%Y-%m-%dT%H:%M:%SZ")
+TimestampExpires            = (SOAPNow + timedelta(minutes=1)).strftime("%Y-%m-%dT%H:%M:%SZ")
+SOAPTo                      = "https://vpfe-hab.dian.gov.co/WcfDianCustomerServices.svc"
+ToTag                       = f"""<wsa:To xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:wcf="http://wcf.dian.colombia" xmlns:wsa="http://www.w3.org/2005/08/addressing" xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd" wsu:Id="id-9821734F262768B5271758426395096292">{SOAPTo}</wsa:To>"""
+SOAPDigestValue             =  base64.b64encode(hashlib.sha256(ToTag.encode("utf-8")).digest()).decode("utf-8")
+SOAPSignedInfo              = f"""<ds:SignedInfo xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:wcf="http://wcf.dian.colombia" xmlns:wsa="http://www.w3.org/2005/08/addressing"><ds:CanonicalizationMethod Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"><ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="wsa soap wcf"></ec:InclusiveNamespaces></ds:CanonicalizationMethod><ds:SignatureMethod Algorithm="http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"></ds:SignatureMethod><ds:Reference URI="#id-9821734F262768B5271758426395096292"><ds:Transforms><ds:Transform Algorithm="http://www.w3.org/2001/10/xml-exc-c14n#"><ec:InclusiveNamespaces xmlns:ec="http://www.w3.org/2001/10/xml-exc-c14n#" PrefixList="soap wcf"></ec:InclusiveNamespaces></ds:Transform></ds:Transforms><ds:DigestMethod Algorithm="http://www.w3.org/2001/04/xmlenc#sha256"></ds:DigestMethod><ds:DigestValue>{SOAPDigestValue}</ds:DigestValue></ds:Reference></ds:SignedInfo>"""
+SOAPSignedInfoSignature = private_key.sign(
+    SOAPSignedInfo.encode("utf-8"),
+    padding.PKCS1v15(),
+    hashes.SHA256()
+)
+SOAPSignatureValue          = base64.b64encode(SOAPSignedInfoSignature).decode("utf-8")
+SOAPAction                  = "http://wcf.dian.colombia/IWcfDianCustomerServices/SendTestSetAsync" #Produccion debe ser diferente
+TestSetId                   = "815d332f-2eb5-4f1c-8f13-3aa08d45ef75" #Produccion no lo debe tener //SET DE PRUEBAS
 
-#Mostrar archivo
-# f = open("Invoice.xml", "r")
-# print(f.read())
+
+GenerateSOAP                       = XML_Parts.GenerateSOAP.GenerateSOAP(
+                                    PublicCertOneLine,
+                                    TimestampCreated,
+                                    TimestampExpires,
+                                    SOAPDigestValue,
+                                    SOAPSignatureValue,
+                                    SOAPAction,
+                                    SOAPTo,
+                                    DestinationZip,
+                                    ZipBase64,
+                                    TestSetId
+                                    )
+
+SOAPCanonicalXml = etree.tostring(etree.fromstring(GenerateSOAP.encode("utf-8")), method="c14n", exclusive=False)
+
+SOAPheaders = {
+    "Content-Type": f'application/soap+xml;charset=UTF-8;action="{SOAPAction}"'
+}
+
+# response = requests.post(SOAPTo, data=SOAPCanonicalXml.decode("utf-8"), headers=SOAPheaders)
+# print("Código de respuesta:", response.status_code)
+# print(response.text)
 
 
-#Validate XML
+
+
+# # Validate XML
 # xsd_main_path = "./Caja-de-herramientas-FE-V1-9/XSD/maindoc/UBL-Invoice-2.1.xsd"
 
 # with open(xsd_main_path, "rb") as f:
@@ -621,7 +628,7 @@ print(ZipBase64)
 
 # schema = etree.XMLSchema(xsd_doc)
 
-# xml_tree = etree.parse("./Generica.xml")
+# xml_tree = etree.parse("./Invoice_c14n.xml")
 
 # if schema.validate(xml_tree):
 #     print("✅ XML válido contra el XSD de UBL")

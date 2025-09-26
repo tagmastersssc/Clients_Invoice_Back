@@ -4,7 +4,8 @@ def AccountingCustomerParty(
                                 PartyIdentificationType,
                                 PartyIdentification,
                                 CustomerTaxSchemeID,
-                                CustomerTaxSchemeName
+                                CustomerTaxSchemeName,
+                                CustomerTaxLevelCode
                             ):
     return(
         f'\
@@ -20,6 +21,7 @@ def AccountingCustomerParty(
          <cac:PartyTaxScheme>\n\
             <cbc:RegistrationName>{CustomerPartyName}</cbc:RegistrationName>\n\
             <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="3" schemeName="{PartyIdentificationType}">{PartyIdentification}</cbc:CompanyID>\n\
+            <cbc:TaxLevelCode>{CustomerTaxLevelCode}</cbc:TaxLevelCode>\n\
             <cac:TaxScheme>\n\
                <cbc:ID>{CustomerTaxSchemeID}</cbc:ID>\n\
                <cbc:Name>{CustomerTaxSchemeName}</cbc:Name>\n\

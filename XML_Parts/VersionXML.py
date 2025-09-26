@@ -17,7 +17,6 @@ def VersionXML(
                 ):
     return(
         f'\
-   </ext:ExtensionContent></ext:UBLExtension></ext:UBLExtensions>\n\
    <cbc:UBLVersionID>{UBLVersionID}</cbc:UBLVersionID>\n\
    <cbc:CustomizationID>{CustomizationID}</cbc:CustomizationID>\n\
    <cbc:ProfileID>{ProfileID}</cbc:ProfileID>\n\
@@ -28,7 +27,7 @@ def VersionXML(
    <cbc:IssueTime>{IssueTime}</cbc:IssueTime>\n\
    <cbc:InvoiceTypeCode>{InvoiceTypeCode}</cbc:InvoiceTypeCode>\n\
    <cbc:Note>{Note}</cbc:Note>\n\
-   <cbc:DocumentCurrencyCode listAgencyID="6" listAgencyName="United Nations Economic Commission for Europe" listID="ISO 4217 Alpha">{DocumentCurrencyCode}</cbc:DocumentCurrencyCode>\n\
+   <cbc:DocumentCurrencyCode>{DocumentCurrencyCode}</cbc:DocumentCurrencyCode>\n\
    <cbc:LineCountNumeric>{LineCountNumeric}</cbc:LineCountNumeric>\n\
    <cac:InvoicePeriod>\n\
       <cbc:StartDate>{InvoicePeriodStartDate}</cbc:StartDate>\n\
