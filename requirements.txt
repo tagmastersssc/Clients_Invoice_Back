@@ -2,3 +2,5 @@ xmlschema
 lxml
 requests
 cryptography
+uvicorn
+fastapi

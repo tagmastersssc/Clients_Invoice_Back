@@ -9,7 +9,6 @@ def VersionXML(
                 IssueDate,
                 IssueTime,
                 InvoiceTypeCode,
-                Note,
                 DocumentCurrencyCode,
                 LineCountNumeric,
                 InvoicePeriodStartDate,
@@ -26,7 +25,6 @@ def VersionXML(
    <cbc:IssueDate>{IssueDate}</cbc:IssueDate>\n\
    <cbc:IssueTime>{IssueTime}</cbc:IssueTime>\n\
    <cbc:InvoiceTypeCode>{InvoiceTypeCode}</cbc:InvoiceTypeCode>\n\
-   <cbc:Note>{Note}</cbc:Note>\n\
    <cbc:DocumentCurrencyCode>{DocumentCurrencyCode}</cbc:DocumentCurrencyCode>\n\
    <cbc:LineCountNumeric>{LineCountNumeric}</cbc:LineCountNumeric>\n\
    <cac:InvoicePeriod>\n\
