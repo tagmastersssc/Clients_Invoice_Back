@@ -341,27 +341,27 @@ def GenerateXML(Request: Request):
     SignatureValueNode.text                         = SignatureValue
 
     #Buscar nodo signature 
-    signature_node                                  = InvoiceCanonicalXmlTree.find(".//ds:Signature", namespaces=ns)
-    xml_str                                         = etree.tostring(signature_node, encoding="utf-8")
-    clean_node                                      = etree.fromstring(xml_str, parser)
+    SignatureNode                                   = InvoiceCanonicalXmlTree.find(".//ds:Signature", namespaces=ns)
+    XMLStr                                          = etree.tostring(SignatureNode, encoding="utf-8")
+    CleanSignatureNode                              = etree.fromstring(XMLStr, parser)
 
-    signature_str                                   = etree.tostring(clean_node, encoding="utf-8").decode("utf-8")
+    SignatureStr                                    = etree.tostring(CleanSignatureNode, encoding="utf-8").decode("utf-8")
 
     InvoiceCanonicalXmlTree                         = etree.tostring(InvoiceCanonicalXmlTree, encoding="utf-8").decode("utf-8")
     # with open("Invoice_c14n.xml", "r", encoding="utf-8") as f:
     #     contenido = f.read()
 
-    signed_invoice                                  = InvoiceCanonicalXmlTree.replace(
+    SignedInvoice                                   = InvoiceCanonicalXmlTree.replace(
                                                         "<ext:ExtensionContent></ext:ExtensionContent>", 
-                                                        f"<ext:ExtensionContent>{signature_str}</ext:ExtensionContent>"
+                                                        f"<ext:ExtensionContent>{SignatureStr}</ext:ExtensionContent>"
                                                     )
-    signed_invoice                                  = signed_invoice.replace(
+    SignedInvoice                                   = SignedInvoice.replace(
                                                         f'<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:sts="dian:gov:co:facturaelectronica:Structures-2-1" Id="xmldsig-{UUID}">', 
                                                         f'<ds:Signature Id="xmldsig-{UUID}">'
                                                     )
 
     with open("Invoice_c14n_Sig.xml", "w", encoding="utf-8") as f:
-        f.write(signed_invoice)
+        f.write(SignedInvoice)
 
     # #Mostrarlo bonito ///Eliminar
 
