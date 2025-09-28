@@ -16,7 +16,6 @@ import base64
 import zipfile
 import os
 import uuid
-import xml.etree.ElementTree as ET
 import warnings
 import calendar
 from lxml import etree
@@ -24,7 +23,6 @@ from datetime import datetime, timezone, timedelta
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import pkcs12, Encoding
-from xml.dom import minidom
 from models import Request
 
 #Quitar warning de P12
