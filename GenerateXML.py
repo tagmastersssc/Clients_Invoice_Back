@@ -34,7 +34,7 @@ warnings.filterwarnings("ignore",category=UserWarning,message="PKCS#12 bundle co
 def GenerateXML(Request: Request):
 
     #UBLExtensions
-    InvoiceNumber                                   = int(Request.UBLExtensions.From) + 5
+    InvoiceNumber                                   = int(Request.UBLExtensions.From) + 7
     ID                                              = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
     SoftwareSecurityCode                            = Request.UBLExtensions.SoftwareID + Request.UBLExtensions.PIN + ID
     SoftwareSecurityCode                            = SoftwareSecurityCode.encode()
@@ -234,17 +234,13 @@ def GenerateXML(Request: Request):
         )
     XML = CreateXml()
 
-    #Crear factura en XML
-    f = open("Invoice.xml", "w")
-    f.write(XML)
-    f.close()
-
     #Canonicalizar XML full, y generar el digest value full
     parser                                          = etree.XMLParser(remove_blank_text=True)
-    doc = etree.fromstring(XML.encode("utf-8"), parser)
+    doc                                             = etree.fromstring(XML.encode("utf-8"), parser)
     InvoiceCanonicalXml                             = etree.tostring(doc, method="c14n", exclusive=False)
-    with open("Invoice_c14n.xml", "wb") as f:
-        f.write(InvoiceCanonicalXml)
+
+    # with open("Invoice_c14n.xml", "wb") as f:
+    #     f.write(InvoiceCanonicalXml)
 
     DigestValueAllC14nInvoice                       = base64.b64encode(hashlib.sha256(InvoiceCanonicalXml).digest()).decode("utf-8")
 
@@ -269,7 +265,7 @@ def GenerateXML(Request: Request):
                                                     )
 
     Signature                                       = etree.fromstring(Signature.encode("utf-8"), parser)
-    InvoiceCanonicalXmlTree                         = etree.fromstring(InvoiceCanonicalXml)
+    InvoiceCanonicalXmlTree                         = etree.fromstring(InvoiceCanonicalXml,parser)
 
     Signature                                       = etree.tostring(
                                                         Signature,
@@ -351,10 +347,11 @@ def GenerateXML(Request: Request):
 
     signature_str                                   = etree.tostring(clean_node, encoding="utf-8").decode("utf-8")
 
-    with open("Invoice_c14n.xml", "r", encoding="utf-8") as f:
-        contenido = f.read()
+    InvoiceCanonicalXmlTree                         = etree.tostring(InvoiceCanonicalXmlTree, encoding="utf-8").decode("utf-8")
+    # with open("Invoice_c14n.xml", "r", encoding="utf-8") as f:
+    #     contenido = f.read()
 
-    signed_invoice                                  = contenido.replace(
+    signed_invoice                                  = InvoiceCanonicalXmlTree.replace(
                                                         "<ext:ExtensionContent></ext:ExtensionContent>", 
                                                         f"<ext:ExtensionContent>{signature_str}</ext:ExtensionContent>"
                                                     )
@@ -366,12 +363,12 @@ def GenerateXML(Request: Request):
     with open("Invoice_c14n_Sig.xml", "w", encoding="utf-8") as f:
         f.write(signed_invoice)
 
-    #Mostrarlo bonito ///Eliminar
+    # #Mostrarlo bonito ///Eliminar
 
-    dom                                             = minidom.parseString(signed_invoice)
-    pretty_xml                                      = dom.toprettyxml()
-    with open("Invoice_c14n_pretty.xml", "w", encoding="utf-8") as f:
-        f.write(pretty_xml)
+    # dom                                             = minidom.parseString(signed_invoice)
+    # pretty_xml                                      = dom.toprettyxml()
+    # with open("Invoice_c14n_pretty.xml", "w", encoding="utf-8") as f:
+    #     f.write(pretty_xml)
 
     #Comprimir XML en Zip
     FileToZip                                       = "Invoice_c14n_Sig.xml"
