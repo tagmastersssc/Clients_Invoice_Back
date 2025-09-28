@@ -15,20 +15,18 @@ def VersionXML(
                 InvoicePeriodEndDate
                 ):
     return(
-        f'\
-   <cbc:UBLVersionID>{UBLVersionID}</cbc:UBLVersionID>\n\
-   <cbc:CustomizationID>{CustomizationID}</cbc:CustomizationID>\n\
-   <cbc:ProfileID>{ProfileID}</cbc:ProfileID>\n\
-   <cbc:ProfileExecutionID>{ProfileExecutionID}</cbc:ProfileExecutionID>\n\
-   <cbc:ID>{ID}</cbc:ID>\n\
-   <cbc:UUID schemeID="2" schemeName="CUFE-SHA384">{CUFE}</cbc:UUID>\n\
-   <cbc:IssueDate>{IssueDate}</cbc:IssueDate>\n\
-   <cbc:IssueTime>{IssueTime}</cbc:IssueTime>\n\
-   <cbc:InvoiceTypeCode>{InvoiceTypeCode}</cbc:InvoiceTypeCode>\n\
-   <cbc:DocumentCurrencyCode>{DocumentCurrencyCode}</cbc:DocumentCurrencyCode>\n\
-   <cbc:LineCountNumeric>{LineCountNumeric}</cbc:LineCountNumeric>\n\
-   <cac:InvoicePeriod>\n\
-      <cbc:StartDate>{InvoicePeriodStartDate}</cbc:StartDate>\n\
-      <cbc:EndDate>{InvoicePeriodEndDate}</cbc:EndDate>\n\
-   </cac:InvoicePeriod>\n\
-    ')
+        f"""<cbc:UBLVersionID>{UBLVersionID}</cbc:UBLVersionID>
+   <cbc:CustomizationID>{CustomizationID}</cbc:CustomizationID>
+   <cbc:ProfileID>{ProfileID}</cbc:ProfileID>
+   <cbc:ProfileExecutionID>{ProfileExecutionID}</cbc:ProfileExecutionID>
+   <cbc:ID>{ID}</cbc:ID>
+   <cbc:UUID schemeID="2" schemeName="CUFE-SHA384">{CUFE}</cbc:UUID>
+   <cbc:IssueDate>{IssueDate}</cbc:IssueDate>
+   <cbc:IssueTime>{IssueTime}</cbc:IssueTime>
+   <cbc:InvoiceTypeCode>{InvoiceTypeCode}</cbc:InvoiceTypeCode>
+   <cbc:DocumentCurrencyCode>{DocumentCurrencyCode}</cbc:DocumentCurrencyCode>
+   <cbc:LineCountNumeric>{LineCountNumeric}</cbc:LineCountNumeric>
+   <cac:InvoicePeriod>
+      <cbc:StartDate>{InvoicePeriodStartDate}</cbc:StartDate>
+      <cbc:EndDate>{InvoicePeriodEndDate}</cbc:EndDate>
+   </cac:InvoicePeriod>""")

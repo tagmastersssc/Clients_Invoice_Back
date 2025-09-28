@@ -34,7 +34,7 @@ warnings.filterwarnings("ignore",category=UserWarning,message="PKCS#12 bundle co
 def GenerateXML(Request: Request):
 
     #UBLExtensions
-    InvoiceNumber                                   = int(Request.UBLExtensions.From) + 7
+    InvoiceNumber                                   = int(Request.UBLExtensions.From) + 8
     ID                                              = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
     SoftwareSecurityCode                            = Request.UBLExtensions.SoftwareID + Request.UBLExtensions.PIN + ID
     SoftwareSecurityCode                            = SoftwareSecurityCode.encode()
