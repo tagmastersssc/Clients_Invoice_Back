@@ -29,7 +29,7 @@ from models import Request
 warnings.filterwarnings("ignore",category=UserWarning,message="PKCS#12 bundle could not be parsed as DER")
 ####
 
-def GenerateXML(Request: Request):
+def GenerateXML(Request: Request,Type):
 
     #UBLExtensions
     InvoiceNumber                                   = int(Request.UBLExtensions.From) + 8
@@ -87,14 +87,24 @@ def GenerateXML(Request: Request):
     RegistrationAddressCountryName                  = Request.AccountingSupplierParty.CountryName #Cambiar si la direccion fiscal del emisor es diferente
     #****AccountingSupplierParty
 
-    #Construcción CUFE
-    CUFE                                            = ID + IssueDate + IssueTime + Request.LegalMonetaryTotal.LineExtensionAmount + Request.CUFE.CodImp1 + Request.CUFE.ValImp1 + Request.CUFE.CodImp2 + Request.CUFE.ValImp2 + Request.CUFE.CodImp3 + Request.CUFE.ValImp3 + Request.LegalMonetaryTotal.PayableAmount + Request.UBLExtensions.ProviderID + Request.AccountingCustomerParty.PartyIdentification + Request.CUFE.ClTec + Request.VersionXML.ProfileExecutionID
-    CUFE                                            = CUFE.encode()
-    CUFE                                            = hashlib.sha384(CUFE).hexdigest()
+    if(Type         == "Invoice"):
+        CloseTag                                        = "</Invoice>"
+        CUFE                                            = ID + IssueDate + IssueTime + Request.LegalMonetaryTotal.LineExtensionAmount + Request.CUFE.CodImp1 + Request.CUFE.ValImp1 + Request.CUFE.CodImp2 + Request.CUFE.ValImp2 + Request.CUFE.CodImp3 + Request.CUFE.ValImp3 + Request.LegalMonetaryTotal.PayableAmount + Request.UBLExtensions.ProviderID + Request.AccountingCustomerParty.PartyIdentification + Request.CUFE.ClTec + Request.VersionXML.ProfileExecutionID
+        CUFE                                            = CUFE.encode()
+        CUFE                                            = hashlib.sha384(CUFE).hexdigest()
+    elif(Type       == "CreditNote"):
+        CloseTag                                        = "</CreditNote>"
+        CUFE                                            = Request.CreditNote.CUFE
+    elif(Type       == "DebitNote"):
+        CloseTag                                        = "</DebitNote>"
+        CUFE                                            = Request.CreditNote.CUFE
+        
 
-    Header                                          = XML_Parts.Header.Header()
+
+    Header                                          = XML_Parts.Header.Header(Type)
 
     UBLExtensions                                   = XML_Parts.UBLExtensions.UBLExtensions(
+                                                        Type,
                                                         Request.UBLExtensions.InvoiceAuthorization,
                                                         Request.UBLExtensions.StartDate,
                                                         Request.UBLExtensions.EndDate,
@@ -228,19 +238,16 @@ def GenerateXML(Request: Request):
             TaxTotal +
             LegalMonetaryTotal +
             InvoiceLine +
-    "</Invoice>" #Corregir
+            CloseTag 
         )
     XML = CreateXml()
 
     #Canonicalizar XML full, y generar el digest value full
     parser                                          = etree.XMLParser(remove_blank_text=True)
     doc                                             = etree.fromstring(XML.encode("utf-8"), parser)
-    InvoiceCanonicalXml                             = etree.tostring(doc, method="c14n", exclusive=False)
+    CanonicalXml                             = etree.tostring(doc, method="c14n", exclusive=False)
 
-    # with open("Invoice_c14n.xml", "wb") as f:
-    #     f.write(InvoiceCanonicalXml)
-
-    DigestValueAllC14nInvoice                       = base64.b64encode(hashlib.sha256(InvoiceCanonicalXml).digest()).decode("utf-8")
+    DigestValueAllC14nInvoice                       = base64.b64encode(hashlib.sha256(CanonicalXml).digest()).decode("utf-8")
 
     #Insertar bloque Signature con valores incorrectos
     DigestValueKeyInfo                              = ""
@@ -263,7 +270,7 @@ def GenerateXML(Request: Request):
                                                     )
 
     Signature                                       = etree.fromstring(Signature.encode("utf-8"), parser)
-    InvoiceCanonicalXmlTree                         = etree.fromstring(InvoiceCanonicalXml,parser)
+    CanonicalXmlTree                         = etree.fromstring(CanonicalXml,parser)
 
     Signature                                       = etree.tostring(
                                                         Signature,
@@ -276,13 +283,13 @@ def GenerateXML(Request: Request):
     #Añade bloque signature
 
     ns                                              = {"ext": "urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2"}
-    InvoiceExtensionContents                        = InvoiceCanonicalXmlTree.findall(".//ext:ExtensionContent", namespaces=ns)
+    InvoiceExtensionContents                        = CanonicalXmlTree.findall(".//ext:ExtensionContent", namespaces=ns)
     SecondExtensionContent                          = InvoiceExtensionContents[1]
     SecondExtensionContent.append(etree.fromstring(Signature))
     #Calcular DigestValue KeyInfo y remplazar en factura
 
     ns                                              = {"ds": "http://www.w3.org/2000/09/xmldsig#"}
-    keyinfo_node                                    = InvoiceCanonicalXmlTree.find(".//ds:KeyInfo", namespaces=ns)
+    keyinfo_node                                    = CanonicalXmlTree.find(".//ds:KeyInfo", namespaces=ns)
 
     CanonicalKeyInfo                                = etree.tostring(
                                                         keyinfo_node,
@@ -293,14 +300,14 @@ def GenerateXML(Request: Request):
                                                     )
 
     DigestValueKeyInfo                              = base64.b64encode(hashlib.sha256(CanonicalKeyInfo).digest()).decode("utf-8")
-    KeyInfoReferenceNode                            = InvoiceCanonicalXmlTree.xpath(f".//ds:Reference[@URI='#xmldsig-{UUID}-keyinfo']", namespaces=ns)
+    KeyInfoReferenceNode                            = CanonicalXmlTree.xpath(f".//ds:Reference[@URI='#xmldsig-{UUID}-keyinfo']", namespaces=ns)
     DigestNode                                      = KeyInfoReferenceNode[0].find("ds:DigestValue", namespaces=ns)
     DigestNode.text                                 = DigestValueKeyInfo
 
     #Calcular DigestValue SignedProperties y remplazar en factura
 
     ns                                              = {"xades": "http://uri.etsi.org/01903/v1.3.2#"}
-    SignedPropertiesNode                            = InvoiceCanonicalXmlTree.find(".//xades:SignedProperties", namespaces=ns)
+    SignedPropertiesNode                            = CanonicalXmlTree.find(".//xades:SignedProperties", namespaces=ns)
     CanonicalSignedProperties                       = etree.tostring(
                                                         SignedPropertiesNode,
                                                         method="c14n",
@@ -310,13 +317,13 @@ def GenerateXML(Request: Request):
                                                     )
     DigestValueSignedProperties                     = base64.b64encode(hashlib.sha256(CanonicalSignedProperties).digest()).decode("utf-8")
     ns                                              = {"ds": "http://www.w3.org/2000/09/xmldsig#"}
-    SignedPropertiesReferenceNode                   = InvoiceCanonicalXmlTree.xpath(f".//ds:Reference[@URI='#xmldsig-{UUID}-signedprops']", namespaces=ns)
+    SignedPropertiesReferenceNode                   = CanonicalXmlTree.xpath(f".//ds:Reference[@URI='#xmldsig-{UUID}-signedprops']", namespaces=ns)
     DigestNode                                      = SignedPropertiesReferenceNode[0].find("ds:DigestValue", namespaces=ns)
     DigestNode.text                                 = DigestValueSignedProperties
 
     #Canonicalizar SignedInfo
 
-    SignedInfoNode                                  = InvoiceCanonicalXmlTree.find(".//ds:SignedInfo", namespaces=ns)
+    SignedInfoNode                                  = CanonicalXmlTree.find(".//ds:SignedInfo", namespaces=ns)
     SignedInfoCanonicalXml                          = etree.tostring(
                                                         SignedInfoNode,
                                                         method="c14n",
@@ -335,21 +342,19 @@ def GenerateXML(Request: Request):
     SignatureValue                                  = base64.b64encode(SignedInfoSignature).decode("utf-8")
 
     #Cambiar SignatureValue en factura
-    SignatureValueNode                              = InvoiceCanonicalXmlTree.find(".//ds:SignatureValue", namespaces=ns)
+    SignatureValueNode                              = CanonicalXmlTree.find(".//ds:SignatureValue", namespaces=ns)
     SignatureValueNode.text                         = SignatureValue
 
     #Buscar nodo signature 
-    SignatureNode                                   = InvoiceCanonicalXmlTree.find(".//ds:Signature", namespaces=ns)
+    SignatureNode                                   = CanonicalXmlTree.find(".//ds:Signature", namespaces=ns)
     XMLStr                                          = etree.tostring(SignatureNode, encoding="utf-8")
     CleanSignatureNode                              = etree.fromstring(XMLStr, parser)
 
     SignatureStr                                    = etree.tostring(CleanSignatureNode, encoding="utf-8").decode("utf-8")
 
-    InvoiceCanonicalXmlTree                         = etree.tostring(InvoiceCanonicalXmlTree, encoding="utf-8").decode("utf-8")
-    # with open("Invoice_c14n.xml", "r", encoding="utf-8") as f:
-    #     contenido = f.read()
+    CanonicalXmlTree                         = etree.tostring(CanonicalXmlTree, encoding="utf-8").decode("utf-8")
 
-    SignedInvoice                                   = InvoiceCanonicalXmlTree.replace(
+    SignedInvoice                                   = CanonicalXmlTree.replace(
                                                         "<ext:ExtensionContent></ext:ExtensionContent>", 
                                                         f"<ext:ExtensionContent>{SignatureStr}</ext:ExtensionContent>"
                                                     )
@@ -358,19 +363,12 @@ def GenerateXML(Request: Request):
                                                         f'<ds:Signature Id="xmldsig-{UUID}">'
                                                     )
 
-    with open("Invoice_c14n_Sig.xml", "w", encoding="utf-8") as f:
+    with open(f"{Type}_c14n_Sig.xml", "w", encoding="utf-8") as f:
         f.write(SignedInvoice)
 
-    # #Mostrarlo bonito ///Eliminar
-
-    # dom                                             = minidom.parseString(signed_invoice)
-    # pretty_xml                                      = dom.toprettyxml()
-    # with open("Invoice_c14n_pretty.xml", "w", encoding="utf-8") as f:
-    #     f.write(pretty_xml)
-
     #Comprimir XML en Zip
-    FileToZip                                       = "Invoice_c14n_Sig.xml"
-    DestinationZip                                  = "Invoice_c14n_Sig.zip"
+    FileToZip                                       = f"{Type}_c14n_Sig.xml"
+    DestinationZip                                  = f"{Type}_c14n_Sig.zip"
 
     with zipfile.ZipFile(DestinationZip, "w", zipfile.ZIP_DEFLATED) as zipf:
         zipf.write(FileToZip, os.path.basename(FileToZip))
@@ -412,10 +410,10 @@ def GenerateXML(Request: Request):
     SOAPheaders                                     = {
                                                         "Content-Type": f'application/soap+xml;charset=UTF-8;action="{SOAPAction}"'
                                                     }
-
-    response                                        = requests.post(SOAPTo, data=SOAPCanonicalXml.decode("utf-8"), headers=SOAPheaders)
-    print("Código de respuesta:", response.status_code)
-    print(response.text)
+    if(Type=="Invoice"): #Pendiente
+        response                                        = requests.post(SOAPTo, data=SOAPCanonicalXml.decode("utf-8"), headers=SOAPheaders)
+        print("Código de respuesta:", response.status_code)
+        print(response.text)
 
 
     return

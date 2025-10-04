@@ -7,9 +7,22 @@ app = FastAPI()
 
 
 @app.post("/GenerateInvoice")
-def generate_invoice(Request: Request):
+def GenerateInvoice(Request: Request):
     
-    GenerateXML(Request)
+
+    GenerateXML(Request,"Invoice")
+    mensaje = f"{Request.UBLExtensions.From}"
+
+    return {
+        "mensaje": mensaje,
+        "datos_recibidos": Request.dict()
+    }
+
+@app.post("/GenerateCreditNote")
+def GenerateCreditNote(Request: Request):
+    
+
+    GenerateXML(Request,"CreditNote")
     mensaje = f"{Request.UBLExtensions.From}"
 
     return {
