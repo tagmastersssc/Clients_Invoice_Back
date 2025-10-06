@@ -112,8 +112,8 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4 #-- checkout the branch
 
-      - name: Setup Python version
-        uses: actions/setup-python@v1 #-- setup python on runner
+      - name: Setup Python ${{ env.PYTHON_VERSION }} Environment
+        uses: actions/setup-python@v4
         with:
           python-version: ${{ env.PYTHON_VERSION }}
 
