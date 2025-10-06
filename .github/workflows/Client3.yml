@@ -131,7 +131,7 @@ jobs:
         run: zip release.zip ./* -r       #-- package the project
 
       - name: Upload artifact for deployment job 
-        uses: actions/upload-artifact@v3 #-- upload the project to be deployed
+        uses: actions/upload-artifact@v4 #-- upload the project to be deployed
         with:
           name: python-app
           path: |
@@ -146,7 +146,7 @@ jobs:
     
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: python-app
 
