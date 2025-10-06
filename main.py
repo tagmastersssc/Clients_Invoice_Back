@@ -7,9 +7,22 @@ app = FastAPI()
 
 
 @app.post("/GenerateInvoice")
-def generate_invoice(Request: Request):
+def GenerateInvoice(Request: Request):
     
-    GenerateXML(Request)
+
+    GenerateXML(Request,"Invoice")
+    mensaje = f"{Request.UBLExtensions.From}"
+
+    return {
+        "mensaje": mensaje,
+        "datos_recibidos": Request.dict()
+    }
+
+@app.post("/GenerateCreditNote")
+def GenerateCreditNote(Request: Request):
+    
+
+    GenerateXML(Request,"CreditNote")
     mensaje = f"{Request.UBLExtensions.From}"
 
     return {
@@ -18,4 +31,4 @@ def generate_invoice(Request: Request):
     }
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=True)
+    uvicorn.run("main:app", reload=True)

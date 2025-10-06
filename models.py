@@ -1,5 +1,8 @@
 from pydantic import BaseModel
 
+class CreditNote(BaseModel):
+    CUFE:                                           str
+
 class UBLExtensions(BaseModel):
     From:                                           str #"990000000"       #Rango desde, en página habilitacion de la Dian
     Prefix:                                         str #"SETP"            #Prefijo, en página habilitacion de la Dian
@@ -23,7 +26,7 @@ class Signature(BaseModel):
 
 class VersionXML(BaseModel):
     UBLVersionID:                                   str #"UBL 2.1"
-    CustomizationID:                                str #"10" #09	AIU, 10	Estándar *, 11	Mandatos, 12	Transporte**, 14	Notariios, 15	Compra Divisas, 16	Venta Divisas Tabla 13.1.5.1
+    CustomizationID:                                str #"10" Tabla 13.1.5.1 - Invoice // 13.1.5.2 - CreditNote
     ProfileID:                                      str #"DIAN 2.1: Factura Electrónica de Venta" #Debe cambiar si es nota credito factura etc...
     ProfileExecutionID:                             str #"2" #1 Prod, 2 pruebas
     InvoiceTypeCode:                                str #"01" #01	Factura electrónica de Venta, 02	Factura electrónica de venta -exportación, 03	Instrumento electrónico de transmisión – tipo 03, 04	Factura electrónica de Venta - tipo 04, 91	Nota Crédito, 92	Nota Débito, 96	Eventos (ApplicationResponse) Tabla 13.1.3
@@ -108,6 +111,7 @@ class CUFE(BaseModel):
     ClTec:                                          str #"fc8eac422eba16e22ffd8c6f94b3f40a6e38162c" #Extraer de página de la DIAN // Llave tecnica TechnicalKey
 
 class Request(BaseModel):
+    CreditNote:                 CreditNote
     UBLExtensions:              UBLExtensions 
     Signature:                  Signature
     VersionXML:                 VersionXML

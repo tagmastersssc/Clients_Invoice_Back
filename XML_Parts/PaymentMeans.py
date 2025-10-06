@@ -5,10 +5,8 @@ def PaymentMeans(
                     PaymentDueDate
                 ):
     return(
-        f'\
-   <cac:PaymentMeans>\n\
-      <cbc:ID>{PaymentMeansID}</cbc:ID>\n\
-      <cbc:PaymentMeansCode>{PaymentMeansCode}</cbc:PaymentMeansCode>\n\
-      <cbc:PaymentDueDate>{PaymentDueDate}</cbc:PaymentDueDate>\n\
-   </cac:PaymentMeans>\n\
-    ')
+        f"""<cac:PaymentMeans>
+      <cbc:ID>{PaymentMeansID}</cbc:ID>
+      <cbc:PaymentMeansCode>{PaymentMeansCode}</cbc:PaymentMeansCode>
+      <cbc:PaymentDueDate>{PaymentDueDate}</cbc:PaymentDueDate>
+   </cac:PaymentMeans>""")

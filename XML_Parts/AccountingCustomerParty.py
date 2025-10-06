@@ -8,29 +8,27 @@ def AccountingCustomerParty(
                                 CustomerTaxLevelCode
                             ):
     return(
-        f'\
-   <cac:AccountingCustomerParty>\n\
-      <cbc:AdditionalAccountID>{CustomerAdditionalAccountID}</cbc:AdditionalAccountID>\n\
-      <cac:Party>\n\
-         <cac:PartyIdentification>\n\
-            <cbc:ID schemeName="{PartyIdentificationType}">{PartyIdentification}</cbc:ID>\n\
-         </cac:PartyIdentification>\n\
-         <cac:PartyName>\n\
-            <cbc:Name>{CustomerPartyName}</cbc:Name>\n\
-         </cac:PartyName>\n\
-         <cac:PartyTaxScheme>\n\
-            <cbc:RegistrationName>{CustomerPartyName}</cbc:RegistrationName>\n\
-            <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="3" schemeName="{PartyIdentificationType}">{PartyIdentification}</cbc:CompanyID>\n\
-            <cbc:TaxLevelCode>{CustomerTaxLevelCode}</cbc:TaxLevelCode>\n\
-            <cac:TaxScheme>\n\
-               <cbc:ID>{CustomerTaxSchemeID}</cbc:ID>\n\
-               <cbc:Name>{CustomerTaxSchemeName}</cbc:Name>\n\
-            </cac:TaxScheme>\n\
-         </cac:PartyTaxScheme>\n\
-         <cac:PartyLegalEntity>\n\
-            <cbc:RegistrationName>{CustomerPartyName}</cbc:RegistrationName>\n\
-            <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="3" schemeName="{PartyIdentificationType}">{PartyIdentification}</cbc:CompanyID>\n\
-         </cac:PartyLegalEntity>\n\
-      </cac:Party>\n\
-   </cac:AccountingCustomerParty>\n\
-    ')
+        f"""<cac:AccountingCustomerParty>
+      <cbc:AdditionalAccountID>{CustomerAdditionalAccountID}</cbc:AdditionalAccountID>
+      <cac:Party>
+         <cac:PartyIdentification>
+            <cbc:ID schemeName="{PartyIdentificationType}">{PartyIdentification}</cbc:ID>
+         </cac:PartyIdentification>
+         <cac:PartyName>
+            <cbc:Name>{CustomerPartyName}</cbc:Name>
+         </cac:PartyName>
+         <cac:PartyTaxScheme>
+            <cbc:RegistrationName>{CustomerPartyName}</cbc:RegistrationName>
+            <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="3" schemeName="{PartyIdentificationType}">{PartyIdentification}</cbc:CompanyID>
+            <cbc:TaxLevelCode>{CustomerTaxLevelCode}</cbc:TaxLevelCode>
+            <cac:TaxScheme>
+               <cbc:ID>{CustomerTaxSchemeID}</cbc:ID>
+               <cbc:Name>{CustomerTaxSchemeName}</cbc:Name>
+            </cac:TaxScheme>
+         </cac:PartyTaxScheme>
+         <cac:PartyLegalEntity>
+            <cbc:RegistrationName>{CustomerPartyName}</cbc:RegistrationName>
+            <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="3" schemeName="{PartyIdentificationType}">{PartyIdentification}</cbc:CompanyID>
+         </cac:PartyLegalEntity>
+      </cac:Party>
+   </cac:AccountingCustomerParty>""")

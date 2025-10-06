@@ -1,0 +1,110 @@
+{
+    "UBLExtensions":{
+        "From":                                 "990000000",
+        "Prefix":                               "SETP",
+        "PIN":                                  "12345",
+        "SoftwareID":                           "7acba738-2ca7-452c-aeaf-cbc10ddf3614",
+        "InvoiceAuthorization":                 "18760000001",
+        "StartDate":                            "2019-01-19",
+        "EndDate":                              "2030-01-19",
+        "To":                                   "995000000",
+        "ProviderID":                           "901923739",
+        "ProviderIDDV":                         "3",
+        "AuthorizationProviderID":              "800197268",
+        "AuthorizationProviderDV":              "4",
+        "URL":                                  "https://catalogo-vpfe-hab.dian.gov.co/document/searchqr?documentKey="
+    },
+    "Signature":{
+        "P12Path":                              "CERT/BILAI S.A.S.p12",
+        "P12Password":                          "VsQkyWgLqSuZEJoC",
+        "SignPolicyURL":                        "https://facturaelectronica.dian.gov.co/politicadefirma/v2/politicadefirmav2.pdf",
+        "SignerRole":                           "supplier"
+    },
+    "VersionXML":{
+        "UBLVersionID":                         "UBL 2.1",
+        "CustomizationID":                      "10",
+        "ProfileID":                            "DIAN 2.1: Factura Electrónica de Venta",
+        "ProfileExecutionID":                   "2",
+        "InvoiceTypeCode":                      "01",
+        "DocumentCurrencyCode":                 "COP",
+        "LineCountNumeric":                     "1"
+    },
+    "AccountingSupplierParty":{
+        "PhysicalLocationID":                   "11001",
+        "PhysicalLocationCityName":             "Bogotá, D.c. ",
+        "PhysicalLocationCountrySubentity":     "Bogotá",
+        "PhysicalLocationCountrySubentityCode": "11",
+        "PhysicalLocationAddressLine":          "Av. #97 - 13",
+        "CountryIdentificationCode":            "CO",
+        "CountryName":                          "Colombia",
+        "TaxLevelCode":                         "O-47",
+        "AdditionalAccountID":                  "1",
+        "PartyName":                            "BILAI S.A.S",
+        "RegistrationName":                     "BILAI S.A.S",
+        "TaxSchemeID":                          "01",
+        "MatriculaMercantil":                   "3930757",
+        "TaxSchemeName":                        "IVA"
+    },
+    "AccountingCustomerParty":{
+        "CustomerAdditionalAccountID":          "2",
+        "CustomerPartyName":                    "Sergio Gonzalez",
+        "PartyIdentificationType":              "13",
+        "PartyIdentification":                  "1014262008",
+        "CustomerTaxSchemeID":                  "ZZ",
+        "CustomerTaxSchemeName":                "No aplica",
+        "CustomerTaxLevelCode":                 "R-99-PN"
+    },
+    "PaymentMeans":{
+        "PaymentMeansID":                       "1",
+        "PaymentMeansCode":                     "91",
+        "PaymentDueDate":                       "2019-06-30"
+
+    },
+    "TaxTotal":{
+        "TaxAmount":                            "215.55",
+        "TaxableAmount":                        "1134.45",
+        "TaxSubtotalTaxAmount":                 "215.55",
+        "Percent":                              "19.00",
+        "TaxSubtotalTaxSchemeID":               "01",
+        "TaxSubtotalTaxSchemeName":             "IVA"
+    },
+    "LegalMonetaryTotal":{
+        "LineExtensionAmount":                  "1134.45",
+        "TaxExclusiveAmount":                   "1134.45",
+        "TaxInclusiveAmount":                   "1350.00",
+        "PayableAmount":                        "1350.00"
+    },
+    "InvoiceLine":{
+        "InvoiceLineID":                        "1",
+        "InvoicedQuantity":                     "1.00",
+        "UnitCode":                             "ZZ",
+        "InvoiceLineLineExtensionAmount":       "1134.45",
+        "AllowanceChargeID":                    "1",
+        "ChargeIndicator":                      "false",
+        "AllowanceChargeReason":                "Descuento por cliente frecuente",
+        "MultiplierFactorNumeric":              "33.33",
+        "Amount":                               "6299.94",
+        "BaseAmount":                           "18900.00",
+        "ItemDescription":                      "AV OASYS -2.25 (8.4) LENTE DE CONTATO",
+        "PriceAmount":                          "1134.45",
+        "BaseQuantity":                         "1.00",
+        "BaseQuantityUnitCode":                 "ZZ"
+    },
+    "TaxTotalInvoiceLine":{
+        "InvoiceLineTaxAmount":                 "215.55",
+        "InvoiceLineTaxableAmount":             "1134.45",
+        "InvoiceLineTaxSubtotalTaxAmount":      "215.55",
+        "InvoiceLinePercent":                   "19.00",
+        "InvoiceLineTaxSubtotalTaxSchemeID":    "01",
+        "InvoiceLineTaxSubtotalTaxSchemeName":  "IVA"
+    },
+    "CUFE":{
+        "CodImp1":                              "01",
+        "ValImp1":                              "215.55",
+        "CodImp2":                              "04",
+        "ValImp2":                              "0.00",
+        "CodImp3":                              "03",
+        "ValImp3":                              "0.00",
+        "ClTec":                                "fc8eac422eba16e22ffd8c6f94b3f40a6e38162c"
+    }
+}

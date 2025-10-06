@@ -18,37 +18,32 @@ def InvoiceLine(
                   BaseQuantityUnitCode
                ):
     return(
-        f'\
-   <cac:InvoiceLine>\n\
-      <cbc:ID>{InvoiceLineID}</cbc:ID>\n\
-      <cbc:InvoicedQuantity unitCode="{unitCode}">{InvoicedQuantity}</cbc:InvoicedQuantity>\n\
-      <cbc:LineExtensionAmount currencyID="{currencyID}">{LineExtensionAmount}</cbc:LineExtensionAmount>\n\
+        f"""<cac:InvoiceLine>
+      <cbc:ID>{InvoiceLineID}</cbc:ID>
+      <cbc:InvoicedQuantity unitCode="{unitCode}">{InvoicedQuantity}</cbc:InvoicedQuantity>
+      <cbc:LineExtensionAmount currencyID="{currencyID}">{LineExtensionAmount}</cbc:LineExtensionAmount>
       {TaxTotal}\
-      <cac:Item>\n\
-         <cbc:Description>{ItemDescription}</cbc:Description>\n\
-         <cac:StandardItemIdentification>\n\
-            <cbc:ID schemeID="999" schemeName="Estándar de adopción del contribuyente">2374860038</cbc:ID>\n\
-         </cac:StandardItemIdentification>\n\
-      </cac:Item>\n\
-      <cac:Price>\n\
-         <cbc:PriceAmount currencyID="{currencyID}">{PriceAmount}</cbc:PriceAmount>\n\
-         <cbc:BaseQuantity unitCode="{BaseQuantityUnitCode}">{BaseQuantity}</cbc:BaseQuantity>\n\
-      </cac:Price>\n\
-   </cac:InvoiceLine>\n\
-    ')
+      <cac:Item>
+         <cbc:Description>{ItemDescription}</cbc:Description>
+         <cac:StandardItemIdentification>
+            <cbc:ID schemeID="999" schemeName="Estándar de adopción del contribuyente">2374860038</cbc:ID>
+         </cac:StandardItemIdentification>
+      </cac:Item>
+      <cac:Price>
+         <cbc:PriceAmount currencyID="{currencyID}">{PriceAmount}</cbc:PriceAmount>
+         <cbc:BaseQuantity unitCode="{BaseQuantityUnitCode}">{BaseQuantity}</cbc:BaseQuantity>
+      </cac:Price>
+   </cac:InvoiceLine>""")
 
 
 #StandardItemIdentification revisar
-         # <cac:StandardItemIdentification>\n\
-         #    <cbc:ID schemeID="999" schemeName="Estándar de adopción del contribuyente">2374860038</cbc:ID>\n\
-         # </cac:StandardItemIdentification>\n\
 
 #Agregar en caso de descuento
-# <cac:AllowanceCharge>\n\
-#          <cbc:ID>{AllowanceChargeID}</cbc:ID>\n\
-#          <cbc:ChargeIndicator>{ChargeIndicator}</cbc:ChargeIndicator>\n\
-#          <cbc:AllowanceChargeReason>{AllowanceChargeReason}</cbc:AllowanceChargeReason>\n\
-#          <cbc:MultiplierFactorNumeric>{MultiplierFactorNumeric}</cbc:MultiplierFactorNumeric>\n\
-#          <cbc:Amount currencyID="{currencyID}">{Amount}</cbc:Amount>\n\
-#          <cbc:BaseAmount currencyID="{currencyID}">{BaseAmount}</cbc:BaseAmount>\n\
-#       </cac:AllowanceCharge>\n\
+# <cac:AllowanceCharge>
+#          <cbc:ID>{AllowanceChargeID}</cbc:ID>
+#          <cbc:ChargeIndicator>{ChargeIndicator}</cbc:ChargeIndicator>
+#          <cbc:AllowanceChargeReason>{AllowanceChargeReason}</cbc:AllowanceChargeReason>
+#          <cbc:MultiplierFactorNumeric>{MultiplierFactorNumeric}</cbc:MultiplierFactorNumeric>
+#          <cbc:Amount currencyID="{currencyID}">{Amount}</cbc:Amount>
+#          <cbc:BaseAmount currencyID="{currencyID}">{BaseAmount}</cbc:BaseAmount>
+#       </cac:AllowanceCharge>
