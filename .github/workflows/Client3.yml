@@ -102,7 +102,7 @@ on:
   workflow_dispatch:
   
 env:
-  AZURE_FUNCTIONAPP_NAME: Client3-back-${{github.ref_name}}-centralus   # set this to your function app name on Azure
+  AZURE_FUNCTIONAPP_NAME: Client3-back-${{github.ref_name}}-centralus
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'
   PYTHON_VERSION: '3.13'
 
