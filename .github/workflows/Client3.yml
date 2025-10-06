@@ -157,8 +157,7 @@ jobs:
         uses: Azure/functions-action@v1 #-- connect to cloud and deploy
         id: deploy-to-function
         with:
-          app-name: 'my-func-test'
-          slot-name: 'Production'
+          app-name: ${{ env.AZURE_FUNCTIONAPP_NAME }}
           package: .
           scm-do-build-during-deployment: true
           enable-oryx-build: true
