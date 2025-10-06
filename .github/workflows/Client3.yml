@@ -109,7 +109,6 @@ env:
 jobs:
   build-and-deploy:
     permissions:
-      contents: none
       id-token: write
     runs-on: ubuntu-latest
     environment:
