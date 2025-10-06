@@ -110,8 +110,6 @@ env:
 
 jobs:
   build-and-deploy:
-    permissions:
-      id-token: write
     runs-on: ubuntu-latest
     environment:
       name: "${{github.ref_name}}"
