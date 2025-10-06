@@ -100,7 +100,9 @@ on:
   push:
     branches: [ "prod","uat" ]
   workflow_dispatch:
-
+permissions:
+  contents: read
+  
 env:
   AZURE_FUNCTIONAPP_NAME: Client3-back-${{github.ref_name}}-centralus   # set this to your function app name on Azure
   AZURE_FUNCTIONAPP_PACKAGE_PATH: '.'       # set this to the path to your function app project, defaults to the repository root
