@@ -127,9 +127,6 @@ jobs:
 
       # Optional: Add step to run tests here
 
-      - name: Zip artifact for deployment 
-        run: zip release.zip ./* -r       #-- package the project
-
       - name: Upload artifact for deployment jobs
         uses: actions/upload-artifact@v4
         with:
@@ -150,9 +147,6 @@ jobs:
         with:
           name: python-app
           path: .
-
-      - name: Unzip artifact for deployment
-        run: unzip release.zip     
         
       - name: 'Deploy to Azure Functions' 
         uses: Azure/functions-action@v1 #-- connect to cloud and deploy
