@@ -56,6 +56,6 @@ def GenerateCreditNote(req: func.HttpRequest) -> func.HttpResponse:
 @app.route(route="Hola")
 def Hola(req: func.HttpRequest) -> func.HttpResponse:
     return func.HttpResponse(
-            str(os.environ.get("StorageTable")),
+            str(os.environ.get("CUSTOMCONNSTR_StorageTable")),
             status_code=200
         )
