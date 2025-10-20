@@ -1,6 +1,7 @@
 import azure.functions as func
 from models import Request
 from GenerateXML import GenerateXML
+import os
 
 
 app = func.FunctionApp()
@@ -50,4 +51,11 @@ def GenerateCreditNote(req: func.HttpRequest) -> func.HttpResponse:
         return func.HttpResponse(
             f"Error interno: {e}",
             status_code=500
+        )
+    
+@app.route(route="Hola")
+def Hola(req: func.HttpRequest) -> func.HttpResponse:
+    return func.HttpResponse(
+            str("Hola"),
+            status_code=200
         )
