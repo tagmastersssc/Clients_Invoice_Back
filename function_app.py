@@ -56,6 +56,6 @@ def GenerateCreditNote(req: func.HttpRequest) -> func.HttpResponse:
 @app.route(route="Hola")
 def Hola(req: func.HttpRequest) -> func.HttpResponse:
     return func.HttpResponse(
-            str("Hola"),
+            str(os.environ.get("StorageTable")),
             status_code=200
         )
