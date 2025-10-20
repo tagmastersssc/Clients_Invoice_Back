@@ -5,3 +5,4 @@ cryptography
 uvicorn
 fastapi
 azure-functions
+azure-data-tables

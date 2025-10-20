@@ -370,12 +370,12 @@ def GenerateXML(Request: Request,Type):
                                                         f'<ds:Signature Id="xmldsig-{UUID}">'
                                                     )
 
-    with open(f"{Type}_c14n_Sig.xml", "w", encoding="utf-8") as f:
+    with open(f"/tmp/{Type}_c14n_Sig.xml", "w", encoding="utf-8") as f:
         f.write(SignedInvoice)
 
     #Comprimir XML en Zip
-    FileToZip                                       = f"{Type}_c14n_Sig.xml"
-    DestinationZip                                  = f"{Type}_c14n_Sig.zip"
+    FileToZip                                       = f"/tmp/{Type}_c14n_Sig.xml"
+    DestinationZip                                  = f"/tmp/{Type}_c14n_Sig.zip"
 
     with zipfile.ZipFile(DestinationZip, "w", zipfile.ZIP_DEFLATED) as zipf:
         zipf.write(FileToZip, os.path.basename(FileToZip))
