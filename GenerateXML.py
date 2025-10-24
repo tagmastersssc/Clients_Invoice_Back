@@ -24,7 +24,7 @@ from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import pkcs12, Encoding
 from models import Request
-
+from TableStorage import TableStorage
 #Quitar warning de P12
 warnings.filterwarnings("ignore",category=UserWarning,message="PKCS#12 bundle could not be parsed as DER")
 ####
@@ -422,8 +422,9 @@ def GenerateXML(Request: Request,Type):
         print("Código de respuesta:", response.status_code)
         print(response.text)
 
+    TableStorageResponse = TableStorage()
 
-    return
+    return (TableStorageResponse)
 
 
     ###### // LEGACY

@@ -17,9 +17,9 @@ def GenerateInvoice(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         RequestObj = Request(**Data)
-        GenerateXML(RequestObj, "Invoice")
+        GenerateXMLResponse = GenerateXML(RequestObj, "Invoice")
         return func.HttpResponse(
-            str(Data),
+            str(GenerateXMLResponse),
             status_code=200
         )
     except Exception as e:
