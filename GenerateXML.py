@@ -426,7 +426,31 @@ def GenerateXML(Request: Request,Type):
         "PartitionKey": Type,
         "RowKey": ID,
         "DocumentType": Type,
-
+        "CUFE": CUFE,
+        "DocumentCurrencyCode": Request.VersionXML.DocumentCurrencyCode,
+        "LineCountNumeric": Request.VersionXML.LineCountNumeric,
+        "IssueDate": IssueDate,
+        "IssueTime": IssueTime,
+        "RegistrationName": Request.AccountingSupplierParty.RegistrationName,
+        "AdditionalAccountID": Request.AccountingSupplierParty.AdditionalAccountID,
+        "CustomerAdditionalAccountID": Request.AccountingCustomerParty.CustomerAdditionalAccountID,
+        "CustomerPartyName": Request.AccountingCustomerParty.CustomerPartyName,
+        "PartyIdentificationType": Request.AccountingCustomerParty.PartyIdentificationType,
+        "PartyIdentification": Request.AccountingCustomerParty.PartyIdentification,
+        "PaymentMeansID": Request.PaymentMeans.PaymentMeansID,
+        "PaymentMeansCode": Request.PaymentMeans.PaymentMeansCode,
+        "PaymentDueDate": Request.PaymentMeans.PaymentDueDate,
+        "TaxAmount": Request.TaxTotal.TaxAmount,
+        "TaxableAmount": Request.TaxTotal.TaxableAmount,
+        "TaxSubtotalTaxAmount": Request.TaxTotal.TaxSubtotalTaxAmount,
+        "Percent": Request.TaxTotal.Percent,
+        "TaxSubtotalTaxSchemeID": Request.TaxTotal.TaxSubtotalTaxSchemeID,
+        "TaxSubtotalTaxSchemeName": Request.TaxTotal.TaxSubtotalTaxSchemeName,
+        "LineExtensionAmount": Request.LegalMonetaryTotal.LineExtensionAmount,
+        "TaxExclusiveAmount": Request.LegalMonetaryTotal.TaxExclusiveAmount,
+        "TaxInclusiveAmount": Request.LegalMonetaryTotal.TaxInclusiveAmount,
+        "PayableAmount": Request.LegalMonetaryTotal.PayableAmount,
+        "FULLXML": SignedInvoice
     }
     TableStorageResponse = AddDocument(JSONToTable)
 
