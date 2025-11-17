@@ -33,14 +33,15 @@ def GenerateXML(Request: Request,Type):
 
     if(Type         == "Invoice"):
         InvoiceNumber                                   = int(Request.UBLExtensions.From) + 8
+        ID                                              = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
     elif(Type       == "CreditNote"):
-        InvoiceNumber                                   = ""
+        InvoiceNumber                                   = 8
     elif(Type       == "DebitNote"):
         InvoiceNumber                                   = ""
 
     #UBLExtensions
     
-    ID                                              = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
+    
     SoftwareSecurityCode                            = Request.UBLExtensions.SoftwareID + Request.UBLExtensions.PIN + ID
     SoftwareSecurityCode                            = SoftwareSecurityCode.encode()
     SoftwareSecurityCode                            = hashlib.sha384(SoftwareSecurityCode).hexdigest()
@@ -101,7 +102,7 @@ def GenerateXML(Request: Request,Type):
         CUFE                                            = hashlib.sha384(CUFE).hexdigest()
     elif(Type       == "CreditNote"):
         CloseTag                                        = "</CreditNote>"
-        CUFE                                            = Request.CreditNote.CUFE
+        CUFE                                            = InvoiceNumber + IssueDate + IssueTime + Request.LegalMonetaryTotal.LineExtensionAmount + Request.CUFE.CodImp1 + Request.CUFE.ValImp1 + Request.CUFE.CodImp2 + Request.CUFE.ValImp2 + Request.CUFE.CodImp3 + Request.CUFE.ValImp3 + Request.LegalMonetaryTotal.PayableAmount + Request.UBLExtensions.ProviderID + Request.AccountingCustomerParty.PartyIdentification + Request.CUFE.ClTec + Request.VersionXML.ProfileExecutionID
     elif(Type       == "DebitNote"):
         CloseTag                                        = "</DebitNote>"
         CUFE                                            = Request.CreditNote.CUFE
@@ -133,7 +134,7 @@ def GenerateXML(Request: Request,Type):
                                                         Request.VersionXML.CustomizationID,
                                                         Request.VersionXML.ProfileID,
                                                         Request.VersionXML.ProfileExecutionID,
-                                                        ID,
+                                                        InvoiceNumber,
                                                         CUFE,
                                                         IssueDate,
                                                         IssueTime,

@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 class CreditNote(BaseModel):
-    CUFE:                                           str
+    InvoiceNumber:                                  str
 
 class UBLExtensions(BaseModel):
     From:                                           str #"990000000"       #Rango desde, en página habilitacion de la Dian
