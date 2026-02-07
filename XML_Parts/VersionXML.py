@@ -1,32 +1,60 @@
 
 def VersionXML(
+                Type,
                 UBLVersionID,
                 CustomizationID,
                 ProfileID,
                 ProfileExecutionID,
                 ID,
+                UUIDschemeName,
                 CUFE,
                 IssueDate,
                 IssueTime,
-                InvoiceTypeCode,
+                DocumentTypeCode,
                 DocumentCurrencyCode,
                 LineCountNumeric,
                 InvoicePeriodStartDate,
-                InvoicePeriodEndDate
+                InvoicePeriodEndDate,
+                InvoiceID,
+                ResponseCode,
+                Description,
+                CreditNoteCUFE,
+                CreditNoteIssueDate
                 ):
+    if (Type == "Invoice"):
+      DocumentTypeCodeBlock      = f"<cbc:InvoiceTypeCode>{DocumentTypeCode}</cbc:InvoiceTypeCode>"
+      DiscrepancyResponseBlock   = ""
+    elif (Type == "CreditNote"):
+      DocumentTypeCodeBlock      = f"<cbc:CreditNoteTypeCode>{DocumentTypeCode}</cbc:CreditNoteTypeCode>"
+      DiscrepancyResponseBlock   = f"""<cac:DiscrepancyResponse>
+      <cbc:ReferenceID>{InvoiceID}</cbc:ReferenceID>
+      <cbc:ResponseCode>{ResponseCode}</cbc:ResponseCode>
+      <cbc:Description>{Description}</cbc:Description>
+   </cac:DiscrepancyResponse>"""
+      BillingReferenceBlock      = f"""<cac:BillingReference>
+      <cac:InvoiceDocumentReference>
+         <cbc:ID>{InvoiceID}</cbc:ID>
+         <cbc:UUID schemeName="CUFE-SHA384">
+            {CreditNoteCUFE}</cbc:UUID>
+         <cbc:IssueDate>{CreditNoteIssueDate}</cbc:IssueDate>
+      </cac:InvoiceDocumentReference>
+   </cac:BillingReference>"""
+      
+
+
     return(
         f"""<cbc:UBLVersionID>{UBLVersionID}</cbc:UBLVersionID>
    <cbc:CustomizationID>{CustomizationID}</cbc:CustomizationID>
    <cbc:ProfileID>{ProfileID}</cbc:ProfileID>
    <cbc:ProfileExecutionID>{ProfileExecutionID}</cbc:ProfileExecutionID>
    <cbc:ID>{ID}</cbc:ID>
-   <cbc:UUID schemeID="2" schemeName="CUFE-SHA384">{CUFE}</cbc:UUID>
+   <cbc:UUID schemeID="2" schemeName="{UUIDschemeName}-SHA384">{CUFE}</cbc:UUID>
    <cbc:IssueDate>{IssueDate}</cbc:IssueDate>
    <cbc:IssueTime>{IssueTime}</cbc:IssueTime>
-   <cbc:InvoiceTypeCode>{InvoiceTypeCode}</cbc:InvoiceTypeCode>
+   {DocumentTypeCodeBlock}
    <cbc:DocumentCurrencyCode>{DocumentCurrencyCode}</cbc:DocumentCurrencyCode>
    <cbc:LineCountNumeric>{LineCountNumeric}</cbc:LineCountNumeric>
    <cac:InvoicePeriod>
       <cbc:StartDate>{InvoicePeriodStartDate}</cbc:StartDate>
       <cbc:EndDate>{InvoicePeriodEndDate}</cbc:EndDate>
-   </cac:InvoicePeriod>""")
+   </cac:InvoicePeriod>{DiscrepancyResponseBlock}{BillingReferenceBlock}""")

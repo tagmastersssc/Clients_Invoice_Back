@@ -1,7 +1,11 @@
 from pydantic import BaseModel
 
-class CreditNote(BaseModel):
-    InvoiceNumber:                                  str
+class CreditNote(BaseModel):                        #reduce el valor de una factura o anula una venta#Estos datos deberian venir de buscar en la base de datos
+    InvoiceID:                                      str # Numero de factura referenciada
+    ResponseCode:                                   str # 1	Devolución parcial de los bienes y/o no aceptación parcial del servicio 2	Anulación de factura electrónica 3	Rebaja  o descuento parcial o total 4	Ajuste de precio 5	Descuento comercial por pronto pago 6	Descuento comercial por volumen de ventas
+    Description:                                    str
+    CUFE:                                           str
+    IssueDate:                                      str
 
 class UBLExtensions(BaseModel):
     From:                                           str #"990000000"       #Rango desde, en página habilitacion de la Dian
@@ -29,7 +33,7 @@ class VersionXML(BaseModel):
     CustomizationID:                                str #"10" Tabla 13.1.5.1 - Invoice // 13.1.5.2 - CreditNote
     ProfileID:                                      str #"DIAN 2.1: Factura Electrónica de Venta" #Debe cambiar si es nota credito factura etc...
     ProfileExecutionID:                             str #"2" #1 Prod, 2 pruebas
-    InvoiceTypeCode:                                str #"01" #01	Factura electrónica de Venta, 02	Factura electrónica de venta -exportación, 03	Instrumento electrónico de transmisión – tipo 03, 04	Factura electrónica de Venta - tipo 04, 91	Nota Crédito, 92	Nota Débito, 96	Eventos (ApplicationResponse) Tabla 13.1.3
+    DocumentTypeCode:                               str #"01" #01	Factura electrónica de Venta, 02	Factura electrónica de venta -exportación, 03	Instrumento electrónico de transmisión – tipo 03, 04	Factura electrónica de Venta - tipo 04, 91	Nota Crédito, 92	Nota Débito, 96	Eventos (ApplicationResponse) Tabla 13.1.3
     DocumentCurrencyCode:                           str #"COP" Código de moneda de la transacción tabla 13.3.3
     LineCountNumeric:                               str #"1" #Número o cantidad de elementos InvoiceLine de la factura //Pendiente Calcular automáticamente
 

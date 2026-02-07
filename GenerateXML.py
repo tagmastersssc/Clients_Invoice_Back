@@ -32,12 +32,19 @@ warnings.filterwarnings("ignore",category=UserWarning,message="PKCS#12 bundle co
 def GenerateXML(Request: Request,Type):
 
     if(Type         == "Invoice"):
-        InvoiceNumber                                   = int(Request.UBLExtensions.From) + 8
-        ID                                              = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
+        InvoiceNumber                               = int(Request.UBLExtensions.From) + 8
+        ID                                          = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
+        CloseTag                                    = "</Invoice>"
+        UUIDschemeName                              = "CUFE"
     elif(Type       == "CreditNote"):
-        InvoiceNumber                                   = 8
+        InvoiceNumber                               = 8
+        ID                                          = "NC" + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
+        CloseTag                                    = "</CreditNote>"
+        UUIDschemeName                              = "CUDE"
     elif(Type       == "DebitNote"):
-        InvoiceNumber                                   = ""
+        InvoiceNumber                               = 8
+        ID                                          = "NC" + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
+        CloseTag                                    = "</DebitNote>"
 
     #UBLExtensions
     
@@ -95,17 +102,9 @@ def GenerateXML(Request: Request,Type):
     RegistrationAddressCountryName                  = Request.AccountingSupplierParty.CountryName #Cambiar si la direccion fiscal del emisor es diferente
     #****AccountingSupplierParty
 
-    if(Type         == "Invoice"):
-        CloseTag                                        = "</Invoice>"
-        CUFE                                            = ID + IssueDate + IssueTime + Request.LegalMonetaryTotal.LineExtensionAmount + Request.CUFE.CodImp1 + Request.CUFE.ValImp1 + Request.CUFE.CodImp2 + Request.CUFE.ValImp2 + Request.CUFE.CodImp3 + Request.CUFE.ValImp3 + Request.LegalMonetaryTotal.PayableAmount + Request.UBLExtensions.ProviderID + Request.AccountingCustomerParty.PartyIdentification + Request.CUFE.ClTec + Request.VersionXML.ProfileExecutionID
-        CUFE                                            = CUFE.encode()
-        CUFE                                            = hashlib.sha384(CUFE).hexdigest()
-    elif(Type       == "CreditNote"):
-        CloseTag                                        = "</CreditNote>"
-        CUFE                                            = InvoiceNumber + IssueDate + IssueTime + Request.LegalMonetaryTotal.LineExtensionAmount + Request.CUFE.CodImp1 + Request.CUFE.ValImp1 + Request.CUFE.CodImp2 + Request.CUFE.ValImp2 + Request.CUFE.CodImp3 + Request.CUFE.ValImp3 + Request.LegalMonetaryTotal.PayableAmount + Request.UBLExtensions.ProviderID + Request.AccountingCustomerParty.PartyIdentification + Request.CUFE.ClTec + Request.VersionXML.ProfileExecutionID
-    elif(Type       == "DebitNote"):
-        CloseTag                                        = "</DebitNote>"
-        CUFE                                            = Request.CreditNote.CUFE
+    CUFE                                            = ID + IssueDate + IssueTime + Request.LegalMonetaryTotal.LineExtensionAmount + Request.CUFE.CodImp1 + Request.CUFE.ValImp1 + Request.CUFE.CodImp2 + Request.CUFE.ValImp2 + Request.CUFE.CodImp3 + Request.CUFE.ValImp3 + Request.LegalMonetaryTotal.PayableAmount + Request.UBLExtensions.ProviderID + Request.AccountingCustomerParty.PartyIdentification + Request.CUFE.ClTec + Request.VersionXML.ProfileExecutionID
+    CUFE                                            = CUFE.encode()
+    CUFE                                            = hashlib.sha384(CUFE).hexdigest()
         
 
 
@@ -130,19 +129,26 @@ def GenerateXML(Request: Request,Type):
                                                     )   
 
     VersionXML                                      = XML_Parts.VersionXML.VersionXML(
+                                                        Type,
                                                         Request.VersionXML.UBLVersionID,
                                                         Request.VersionXML.CustomizationID,
                                                         Request.VersionXML.ProfileID,
                                                         Request.VersionXML.ProfileExecutionID,
-                                                        InvoiceNumber,
+                                                        ID,
+                                                        UUIDschemeName,
                                                         CUFE,
                                                         IssueDate,
                                                         IssueTime,
-                                                        Request.VersionXML.InvoiceTypeCode,
+                                                        Request.VersionXML.DocumentTypeCode,
                                                         Request.VersionXML.DocumentCurrencyCode,
                                                         Request.VersionXML.LineCountNumeric,
                                                         InvoicePeriodStartDate,
-                                                        InvoicePeriodEndDate
+                                                        InvoicePeriodEndDate,
+                                                        Request.CreditNote.InvoiceID,
+                                                        Request.CreditNote.ResponseCode,
+                                                        Request.CreditNote.Description,
+                                                        Request.CreditNote.CUFE,
+                                                        Request.CreditNote.IssueDate
                                                     )
 
     AccountingSupplierParty                         = XML_Parts.AccountingSupplierParty.AccountingSupplierParty(
