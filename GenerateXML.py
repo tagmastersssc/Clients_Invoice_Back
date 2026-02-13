@@ -32,15 +32,17 @@ warnings.filterwarnings("ignore",category=UserWarning,message="PKCS#12 bundle co
 def GenerateXML(Request: Request,Type):
 
     if(Type         == "Invoice"):
-        InvoiceNumber                               = int(Request.UBLExtensions.From) + 8
+        InvoiceNumber                               = int(Request.UBLExtensions.From) + 41
         ID                                          = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
         CloseTag                                    = "</Invoice>"
         UUIDschemeName                              = "CUFE"
+        CUFECUDE                                    = Request.CUFE.ClTec
     elif(Type       == "CreditNote"):
-        InvoiceNumber                               = 8
-        ID                                          = "NC" + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
+        InvoiceNumber                               = int(Request.UBLExtensions.From) + 11
+        ID                                          = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
         CloseTag                                    = "</CreditNote>"
         UUIDschemeName                              = "CUDE"
+        CUFECUDE                                    = Request.UBLExtensions.PIN
     elif(Type       == "DebitNote"):
         InvoiceNumber                               = 8
         ID                                          = "NC" + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
@@ -102,7 +104,7 @@ def GenerateXML(Request: Request,Type):
     RegistrationAddressCountryName                  = Request.AccountingSupplierParty.CountryName #Cambiar si la direccion fiscal del emisor es diferente
     #****AccountingSupplierParty
 
-    CUFE                                            = ID + IssueDate + IssueTime + Request.LegalMonetaryTotal.LineExtensionAmount + Request.CUFE.CodImp1 + Request.CUFE.ValImp1 + Request.CUFE.CodImp2 + Request.CUFE.ValImp2 + Request.CUFE.CodImp3 + Request.CUFE.ValImp3 + Request.LegalMonetaryTotal.PayableAmount + Request.UBLExtensions.ProviderID + Request.AccountingCustomerParty.PartyIdentification + Request.CUFE.ClTec + Request.VersionXML.ProfileExecutionID
+    CUFE                                            = ID + IssueDate + IssueTime + Request.LegalMonetaryTotal.LineExtensionAmount + Request.CUFE.CodImp1 + Request.CUFE.ValImp1 + Request.CUFE.CodImp2 + Request.CUFE.ValImp2 + Request.CUFE.CodImp3 + Request.CUFE.ValImp3 + Request.LegalMonetaryTotal.PayableAmount + Request.UBLExtensions.ProviderID + Request.AccountingCustomerParty.PartyIdentification + CUFECUDE + Request.VersionXML.ProfileExecutionID
     CUFE                                            = CUFE.encode()
     CUFE                                            = hashlib.sha384(CUFE).hexdigest()
         
@@ -238,7 +240,8 @@ def GenerateXML(Request: Request,Type):
                                                         Request.InvoiceLine.ItemDescription,
                                                         Request.InvoiceLine.PriceAmount,
                                                         Request.InvoiceLine.BaseQuantity,
-                                                        Request.InvoiceLine.BaseQuantityUnitCode
+                                                        Request.InvoiceLine.BaseQuantityUnitCode,
+                                                        Type
                                                     )
 
     def CreateXml():
@@ -284,7 +287,7 @@ def GenerateXML(Request: Request,Type):
                                                     )
 
     Signature                                       = etree.fromstring(Signature.encode("utf-8"), parser)
-    CanonicalXmlTree                         = etree.fromstring(CanonicalXml,parser)
+    CanonicalXmlTree                                = etree.fromstring(CanonicalXml,parser)
 
     Signature                                       = etree.tostring(
                                                         Signature,
@@ -366,16 +369,22 @@ def GenerateXML(Request: Request,Type):
 
     SignatureStr                                    = etree.tostring(CleanSignatureNode, encoding="utf-8").decode("utf-8")
 
-    CanonicalXmlTree                         = etree.tostring(CanonicalXmlTree, encoding="utf-8").decode("utf-8")
+    CanonicalXmlTree                                = etree.tostring(CanonicalXmlTree, encoding="utf-8").decode("utf-8")
 
     SignedInvoice                                   = CanonicalXmlTree.replace(
                                                         "<ext:ExtensionContent></ext:ExtensionContent>", 
                                                         f"<ext:ExtensionContent>{SignatureStr}</ext:ExtensionContent>"
                                                     )
-    SignedInvoice                                   = SignedInvoice.replace(
-                                                        f'<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:sts="dian:gov:co:facturaelectronica:Structures-2-1" Id="xmldsig-{UUID}">', 
-                                                        f'<ds:Signature Id="xmldsig-{UUID}">'
-                                                    )
+    if(Type         == "Invoice"):
+        SignedInvoice                                   = SignedInvoice.replace(
+                                                            f'<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns="urn:oasis:names:specification:ubl:schema:xsd:Invoice-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:sts="dian:gov:co:facturaelectronica:Structures-2-1" Id="xmldsig-{UUID}">', 
+                                                            f'<ds:Signature Id="xmldsig-{UUID}">'
+                                                        )
+    elif(Type       == "CreditNote"):
+        SignedInvoice                                   = SignedInvoice.replace(
+                                                            f'<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:sts="dian:gov:co:facturaelectronica:Structures-2-1" Id="xmldsig-{UUID}">', 
+                                                            f'<ds:Signature Id="xmldsig-{UUID}">'
+                                                        )
 
     with open(f"/tmp/{Type}_c14n_Sig.xml", "w", encoding="utf-8") as f:
         f.write(SignedInvoice)
@@ -404,7 +413,7 @@ def GenerateXML(Request: Request,Type):
                                                     )
     SOAPSignatureValue                              = base64.b64encode(SOAPSignedInfoSignature).decode("utf-8")
     SOAPAction                                      = "http://wcf.dian.colombia/IWcfDianCustomerServices/SendBillSync" #Produccion debe ser diferente #Actualmente está SendBillSync, para ver la respuesta inmediata, para habilitar el set de pruebas, debe ser SendTestSetAsync
-    TestSetId                                       = "47c11080-2700-4010-afc4-19b8d95cbf6a" #Produccion no lo debe tener //SET DE PRUEBAS
+    TestSetId                                       = "aa719e5d-6455-4625-bfa9-bd51d8b66f33" #Produccion no lo debe tener //SET DE PRUEBAS
 
     GenerateSOAP                                    = XML_Parts.GenerateSOAP.GenerateSOAP(
                                                         PublicCertOneLine,
@@ -424,7 +433,7 @@ def GenerateXML(Request: Request,Type):
     SOAPheaders                                     = {
                                                         "Content-Type": f'application/soap+xml;charset=UTF-8;action="{SOAPAction}"'
                                                     }
-    if(Type=="Invoice"): #Pendiente
+    if(Type=="Invoice" or Type=="CreditNote"): #Pendiente
         response                                        = requests.post(SOAPTo, data=SOAPCanonicalXml.decode("utf-8"), headers=SOAPheaders)
         print("Código de respuesta:", response.status_code)
         print(response.text)

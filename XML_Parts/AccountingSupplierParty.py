@@ -25,6 +25,11 @@ def AccountingSupplierParty(
                               Prefix,
                               MatriculaMercantil
                               ):
+   #  if (Type == "Invoice" ):
+        
+    
+
+
     return(
         f"""<cac:AccountingSupplierParty>
       <cbc:AdditionalAccountID>{AdditionalAccountID}</cbc:AdditionalAccountID>
