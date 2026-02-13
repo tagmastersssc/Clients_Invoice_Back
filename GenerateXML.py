@@ -58,7 +58,7 @@ def GenerateXML(Request: Request,Type):
         MonetaryTotal                               = "LegalMonetaryTotal"
 
     elif(Type       == "DebitNote"):
-        InvoiceNumber                               = 8
+        InvoiceNumber                               = int(Request.UBLExtensions.From) + 9
         ID                                          = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
         CloseTag                                    = "</DebitNote>"
         UUIDschemeName                              = "CUDE"
