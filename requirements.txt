@@ -4,5 +4,6 @@ requests
 cryptography
 uvicorn
 fastapi
+pydantic
 azure-functions
 azure-data-tables

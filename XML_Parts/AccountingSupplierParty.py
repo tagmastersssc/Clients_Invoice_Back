@@ -23,7 +23,8 @@ def AccountingSupplierParty(
                               TaxSchemeID,
                               TaxSchemeName,
                               Prefix,
-                              MatriculaMercantil
+                              MatriculaMercantil,
+                              ElectronicMail
                               ):
     return(
         f"""<cac:AccountingSupplierParty>
@@ -77,5 +78,8 @@ def AccountingSupplierParty(
                <cbc:Name>{MatriculaMercantil}</cbc:Name>
             </cac:CorporateRegistrationScheme>
          </cac:PartyLegalEntity>
+         <cac:Contact>
+            <cbc:ElectronicMail>{ElectronicMail}</cbc:ElectronicMail>
+         </cac:Contact>
       </cac:Party>
    </cac:AccountingSupplierParty>""")

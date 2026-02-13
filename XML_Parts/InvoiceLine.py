@@ -15,12 +15,23 @@ def InvoiceLine(
                   ItemDescription,
                   PriceAmount,
                   BaseQuantity,
-                  BaseQuantityUnitCode
+                  BaseQuantityUnitCode,
+                  Type
                ):
+    if (Type == "Invoice"):
+      Tag                  = "InvoiceLine"
+      DocumentQuantity     = "InvoicedQuantity"
+    elif (Type == "CreditNote"):
+      Tag                  = "CreditNoteLine"
+      DocumentQuantity     = "CreditedQuantity"
+    elif (Type == "DebitNote"):
+      Tag                  = "DebitNoteLine"
+      DocumentQuantity     = "DebitedQuantity"
+
     return(
-        f"""<cac:InvoiceLine>
+        f"""<cac:{Tag}>
       <cbc:ID>{InvoiceLineID}</cbc:ID>
-      <cbc:InvoicedQuantity unitCode="{unitCode}">{InvoicedQuantity}</cbc:InvoicedQuantity>
+      <cbc:{DocumentQuantity} unitCode="{unitCode}">{InvoicedQuantity}</cbc:{DocumentQuantity}>
       <cbc:LineExtensionAmount currencyID="{currencyID}">{LineExtensionAmount}</cbc:LineExtensionAmount>
       {TaxTotal}\
       <cac:Item>
@@ -33,7 +44,7 @@ def InvoiceLine(
          <cbc:PriceAmount currencyID="{currencyID}">{PriceAmount}</cbc:PriceAmount>
          <cbc:BaseQuantity unitCode="{BaseQuantityUnitCode}">{BaseQuantity}</cbc:BaseQuantity>
       </cac:Price>
-   </cac:InvoiceLine>""")
+   </cac:{Tag}>""")
 
 
 #StandardItemIdentification revisar
