@@ -7,6 +7,13 @@ class CreditNote(BaseModel):                        #reduce el valor de una fact
     CUFE:                                           str
     IssueDate:                                      str
 
+class DebitNote(BaseModel):                         #reduce el valor de una factura o anula una venta#Estos datos deberian venir de buscar en la base de datos
+    InvoiceID:                                      str # Numero de factura referenciada
+    ResponseCode:                                   str #1	Intereses 2	Gastos por cobrar 3	Cambio del valor 4	Otros
+    Description:                                    str
+    CUFE:                                           str
+    IssueDate:                                      str
+
 class UBLExtensions(BaseModel):
     From:                                           str #"990000000"       #Rango desde, en página habilitacion de la Dian
     Prefix:                                         str #"SETP"            #Prefijo, en página habilitacion de la Dian
@@ -52,6 +59,7 @@ class AccountingSupplierParty(BaseModel):
     TaxSchemeID:                                    str #"01" #Identificador del tributo tabla 13.2.6.2 //// 01	IVA 04	INC ZA	IVA e INC ZZ 	No aplica *
     MatriculaMercantil:                             str #"3930757" # https://www.rues.org.co/buscar/RM/ Nit al final
     TaxSchemeName:                                  str #"IVA" #Nombre del tributo tabla 13.2.6.2 //// 01	IVA 04	INC ZA	IVA e INC ZZ 	No aplica *
+    ElectronicMail:                                 str #Correo electronico
 
 class AccountingCustomerParty(BaseModel):
     CustomerAdditionalAccountID:                    str #"2" # 1	Persona Jurídica y asimiladas, 2	Persona Natural y asimiladas Tabla 13.2.3 Nota: Se debe informar el código “2” cuando se trate del consumidor final
@@ -61,6 +69,7 @@ class AccountingCustomerParty(BaseModel):
     CustomerTaxSchemeID:                            str #"ZZ"
     CustomerTaxSchemeName:                          str #"No aplica"
     CustomerTaxLevelCode:                           str #"R-99-PN"
+    ElectronicMail:                                 str #Correo electronico
 
 class PaymentMeans(BaseModel):
     PaymentMeansID:                                 str #"1" #Formas de pago tabla 13.3.4.1 // 1	Contado 2	Crédito
@@ -116,6 +125,7 @@ class CUFE(BaseModel):
 
 class Request(BaseModel):
     CreditNote:                 CreditNote
+    DebitNote:                  DebitNote
     UBLExtensions:              UBLExtensions 
     Signature:                  Signature
     VersionXML:                 VersionXML

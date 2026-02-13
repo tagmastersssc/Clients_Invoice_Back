@@ -18,8 +18,8 @@ def VersionXML(
                 InvoiceID,
                 ResponseCode,
                 Description,
-                CreditNoteCUFE,
-                CreditNoteIssueDate
+                DocumentCUFE,
+                DocumentIssueDate
                 ):
     if (Type == "Invoice"):
       DocumentTypeCodeBlock      = f"<cbc:InvoiceTypeCode>{DocumentTypeCode}</cbc:InvoiceTypeCode>"
@@ -35,8 +35,22 @@ def VersionXML(
       BillingReferenceBlock      = f"""<cac:BillingReference>
       <cac:InvoiceDocumentReference>
          <cbc:ID>{InvoiceID}</cbc:ID>
-         <cbc:UUID schemeName="CUFE-SHA384">{CreditNoteCUFE}</cbc:UUID>
-         <cbc:IssueDate>{CreditNoteIssueDate}</cbc:IssueDate>
+         <cbc:UUID schemeName="CUFE-SHA384">{DocumentCUFE}</cbc:UUID>
+         <cbc:IssueDate>{DocumentIssueDate}</cbc:IssueDate>
+      </cac:InvoiceDocumentReference>
+   </cac:BillingReference>"""
+    elif (Type == "DebitNote"):
+      DocumentTypeCodeBlock      = f""
+      DiscrepancyResponseBlock   = f"""<cac:DiscrepancyResponse>
+      <cbc:ReferenceID>{InvoiceID}</cbc:ReferenceID>
+      <cbc:ResponseCode>{ResponseCode}</cbc:ResponseCode>
+      <cbc:Description>{Description}</cbc:Description>
+   </cac:DiscrepancyResponse>"""
+      BillingReferenceBlock      = f"""<cac:BillingReference>
+      <cac:InvoiceDocumentReference>
+         <cbc:ID>{InvoiceID}</cbc:ID>
+         <cbc:UUID schemeName="CUFE-SHA384">{DocumentCUFE}</cbc:UUID>
+         <cbc:IssueDate>{DocumentIssueDate}</cbc:IssueDate>
       </cac:InvoiceDocumentReference>
    </cac:BillingReference>"""
       

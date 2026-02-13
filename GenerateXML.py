@@ -32,21 +32,43 @@ warnings.filterwarnings("ignore",category=UserWarning,message="PKCS#12 bundle co
 def GenerateXML(Request: Request,Type):
 
     if(Type         == "Invoice"):
-        InvoiceNumber                               = int(Request.UBLExtensions.From) + 41
+        InvoiceNumber                               = int(Request.UBLExtensions.From) + 42
         ID                                          = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
         CloseTag                                    = "</Invoice>"
         UUIDschemeName                              = "CUFE"
         CUFECUDE                                    = Request.CUFE.ClTec
+        DocumentInvoiceID                           = ""
+        DocumentResponseCode                        = ""
+        DocumentDescription                         = ""
+        DocumentCUFE                                = ""
+        DocumentIssueDate                           = ""
+        MonetaryTotal                               = "LegalMonetaryTotal"
+
     elif(Type       == "CreditNote"):
-        InvoiceNumber                               = int(Request.UBLExtensions.From) + 11
+        InvoiceNumber                               = int(Request.UBLExtensions.From) + 13
         ID                                          = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
         CloseTag                                    = "</CreditNote>"
         UUIDschemeName                              = "CUDE"
         CUFECUDE                                    = Request.UBLExtensions.PIN
+        DocumentInvoiceID                           = Request.CreditNote.InvoiceID
+        DocumentResponseCode                        = Request.CreditNote.ResponseCode
+        DocumentDescription                         = Request.CreditNote.Description
+        DocumentCUFE                                = Request.CreditNote.CUFE
+        DocumentIssueDate                           = Request.CreditNote.IssueDate
+        MonetaryTotal                               = "LegalMonetaryTotal"
+
     elif(Type       == "DebitNote"):
         InvoiceNumber                               = 8
-        ID                                          = "NC" + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
+        ID                                          = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
         CloseTag                                    = "</DebitNote>"
+        UUIDschemeName                              = "CUDE"
+        CUFECUDE                                    = Request.UBLExtensions.PIN
+        DocumentInvoiceID                           = Request.DebitNote.InvoiceID
+        DocumentResponseCode                        = Request.DebitNote.ResponseCode
+        DocumentDescription                         = Request.DebitNote.Description
+        DocumentCUFE                                = Request.DebitNote.CUFE
+        DocumentIssueDate                           = Request.DebitNote.IssueDate
+        MonetaryTotal                               = "RequestedMonetaryTotal"
 
     #UBLExtensions
     
@@ -146,11 +168,11 @@ def GenerateXML(Request: Request,Type):
                                                         Request.VersionXML.LineCountNumeric,
                                                         InvoicePeriodStartDate,
                                                         InvoicePeriodEndDate,
-                                                        Request.CreditNote.InvoiceID,
-                                                        Request.CreditNote.ResponseCode,
-                                                        Request.CreditNote.Description,
-                                                        Request.CreditNote.CUFE,
-                                                        Request.CreditNote.IssueDate
+                                                        DocumentInvoiceID,
+                                                        DocumentResponseCode,
+                                                        DocumentDescription,
+                                                        DocumentCUFE,
+                                                        DocumentIssueDate
                                                     )
 
     AccountingSupplierParty                         = XML_Parts.AccountingSupplierParty.AccountingSupplierParty(
@@ -177,7 +199,8 @@ def GenerateXML(Request: Request,Type):
                                                         Request.AccountingSupplierParty.TaxSchemeID,
                                                         Request.AccountingSupplierParty.TaxSchemeName,
                                                         Request.UBLExtensions.Prefix,
-                                                        Request.AccountingSupplierParty.MatriculaMercantil
+                                                        Request.AccountingSupplierParty.MatriculaMercantil,
+                                                        Request.AccountingSupplierParty.ElectronicMail
                                                     )
 
     AccountingCustomerParty                         = XML_Parts.AccountingCustomerParty.AccountingCustomerParty(
@@ -187,7 +210,8 @@ def GenerateXML(Request: Request,Type):
                                                         Request.AccountingCustomerParty.PartyIdentification,
                                                         Request.AccountingCustomerParty.CustomerTaxSchemeID,
                                                         Request.AccountingCustomerParty.CustomerTaxSchemeName,
-                                                        Request.AccountingCustomerParty.CustomerTaxLevelCode
+                                                        Request.AccountingCustomerParty.CustomerTaxLevelCode,
+                                                        Request.AccountingCustomerParty.ElectronicMail
                                                     )
 
     PaymentMeans                                    = XML_Parts.PaymentMeans.PaymentMeans(
@@ -211,7 +235,8 @@ def GenerateXML(Request: Request,Type):
                                                         Request.LegalMonetaryTotal.LineExtensionAmount,
                                                         Request.LegalMonetaryTotal.TaxExclusiveAmount,
                                                         Request.LegalMonetaryTotal.TaxInclusiveAmount,
-                                                        Request.LegalMonetaryTotal.PayableAmount
+                                                        Request.LegalMonetaryTotal.PayableAmount,
+                                                        MonetaryTotal
                                                     )
 
     TaxTotalInvoiceLine                             = XML_Parts.TaxTotal.TaxTotal(
@@ -385,6 +410,12 @@ def GenerateXML(Request: Request,Type):
                                                             f'<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns="urn:oasis:names:specification:ubl:schema:xsd:CreditNote-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:sts="dian:gov:co:facturaelectronica:Structures-2-1" Id="xmldsig-{UUID}">', 
                                                             f'<ds:Signature Id="xmldsig-{UUID}">'
                                                         )
+    
+    elif(Type       == "DebitNote"):
+        SignedInvoice                                   = SignedInvoice.replace(
+                                                            f'<ds:Signature xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns="urn:oasis:names:specification:ubl:schema:xsd:DebitNote-2" xmlns:cac="urn:oasis:names:specification:ubl:schema:xsd:CommonAggregateComponents-2" xmlns:cbc="urn:oasis:names:specification:ubl:schema:xsd:CommonBasicComponents-2" xmlns:ext="urn:oasis:names:specification:ubl:schema:xsd:CommonExtensionComponents-2" xmlns:sts="dian:gov:co:facturaelectronica:Structures-2-1" Id="xmldsig-{UUID}">', 
+                                                            f'<ds:Signature Id="xmldsig-{UUID}">'
+                                                        )
 
     with open(f"/tmp/{Type}_c14n_Sig.xml", "w", encoding="utf-8") as f:
         f.write(SignedInvoice)
@@ -413,7 +444,6 @@ def GenerateXML(Request: Request,Type):
                                                     )
     SOAPSignatureValue                              = base64.b64encode(SOAPSignedInfoSignature).decode("utf-8")
     SOAPAction                                      = "http://wcf.dian.colombia/IWcfDianCustomerServices/SendBillSync" #Produccion debe ser diferente #Actualmente está SendBillSync, para ver la respuesta inmediata, para habilitar el set de pruebas, debe ser SendTestSetAsync
-    TestSetId                                       = "aa719e5d-6455-4625-bfa9-bd51d8b66f33" #Produccion no lo debe tener //SET DE PRUEBAS
 
     GenerateSOAP                                    = XML_Parts.GenerateSOAP.GenerateSOAP(
                                                         PublicCertOneLine,
@@ -424,8 +454,7 @@ def GenerateXML(Request: Request,Type):
                                                         SOAPAction,
                                                         SOAPTo,
                                                         DestinationZip,
-                                                        ZipBase64,
-                                                        TestSetId
+                                                        ZipBase64
                                                     )
 
     SOAPCanonicalXml                                = etree.tostring(etree.fromstring(GenerateSOAP.encode("utf-8")), method="c14n", exclusive=False)
@@ -433,10 +462,10 @@ def GenerateXML(Request: Request,Type):
     SOAPheaders                                     = {
                                                         "Content-Type": f'application/soap+xml;charset=UTF-8;action="{SOAPAction}"'
                                                     }
-    if(Type=="Invoice" or Type=="CreditNote"): #Pendiente
-        response                                        = requests.post(SOAPTo, data=SOAPCanonicalXml.decode("utf-8"), headers=SOAPheaders)
-        print("Código de respuesta:", response.status_code)
-        print(response.text)
+    
+    response                                        = requests.post(SOAPTo, data=SOAPCanonicalXml.decode("utf-8"), headers=SOAPheaders)
+    print("Código de respuesta:", response.status_code)
+    print(response.text)
 
     JSONToTable = {
         "PartitionKey": Type,

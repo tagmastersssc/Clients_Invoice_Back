@@ -24,6 +24,9 @@ def InvoiceLine(
     elif (Type == "CreditNote"):
       Tag                  = "CreditNoteLine"
       DocumentQuantity     = "CreditedQuantity"
+    elif (Type == "DebitNote"):
+      Tag                  = "DebitNoteLine"
+      DocumentQuantity     = "DebitedQuantity"
 
     return(
         f"""<cac:{Tag}>

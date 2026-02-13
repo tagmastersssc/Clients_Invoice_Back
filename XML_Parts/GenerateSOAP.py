@@ -8,8 +8,7 @@ def GenerateSOAP(
                     SOAPAction,
                     SOAPTo,
                     DestinationZip,
-                    ZipBase64,
-                    TestSetId
+                    ZipBase64
                     ):
     return(
         f"""<soap:Envelope xmlns:soap="http://www.w3.org/2003/05/soap-envelope" xmlns:wcf="http://wcf.dian.colombia">

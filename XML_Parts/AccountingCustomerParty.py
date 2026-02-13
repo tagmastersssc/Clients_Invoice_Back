@@ -5,7 +5,8 @@ def AccountingCustomerParty(
                                 PartyIdentification,
                                 CustomerTaxSchemeID,
                                 CustomerTaxSchemeName,
-                                CustomerTaxLevelCode
+                                CustomerTaxLevelCode,
+                                ElectronicMail
                             ):
     return(
         f"""<cac:AccountingCustomerParty>
@@ -30,5 +31,8 @@ def AccountingCustomerParty(
             <cbc:RegistrationName>{CustomerPartyName}</cbc:RegistrationName>
             <cbc:CompanyID schemeAgencyID="195" schemeAgencyName="CO, DIAN (Dirección de Impuestos y Aduanas Nacionales)" schemeID="3" schemeName="{PartyIdentificationType}">{PartyIdentification}</cbc:CompanyID>
          </cac:PartyLegalEntity>
+         <cac:Contact>
+            <cbc:ElectronicMail>{ElectronicMail}</cbc:ElectronicMail>
+         </cac:Contact>
       </cac:Party>
    </cac:AccountingCustomerParty>""")
