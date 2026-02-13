@@ -16,6 +16,7 @@ class DebitNote(BaseModel):                         #reduce el valor de una fact
 
 class UBLExtensions(BaseModel):
     From:                                           str #"990000000"       #Rango desde, en página habilitacion de la Dian
+    Sequence:                                       str 
     Prefix:                                         str #"SETP"            #Prefijo, en página habilitacion de la Dian
     PIN:                                            str #"12345"           #Pin, en página habilitacion de la Dian
     SoftwareID:                                     str #"7acba738-2ca7-452c-aeaf-cbc10ddf3614" #Id, en página habilitacion de la Dian

@@ -32,7 +32,7 @@ warnings.filterwarnings("ignore",category=UserWarning,message="PKCS#12 bundle co
 def GenerateXML(Request: Request,Type):
 
     if(Type         == "Invoice"):
-        InvoiceNumber                               = int(Request.UBLExtensions.From) + 42
+        InvoiceNumber                               = int(Request.UBLExtensions.From) + int(Request.UBLExtensions.Sequence)
         ID                                          = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
         CloseTag                                    = "</Invoice>"
         UUIDschemeName                              = "CUFE"
@@ -45,7 +45,7 @@ def GenerateXML(Request: Request,Type):
         MonetaryTotal                               = "LegalMonetaryTotal"
 
     elif(Type       == "CreditNote"):
-        InvoiceNumber                               = int(Request.UBLExtensions.From) + 13
+        InvoiceNumber                               = int(Request.UBLExtensions.From) + int(Request.UBLExtensions.Sequence)
         ID                                          = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
         CloseTag                                    = "</CreditNote>"
         UUIDschemeName                              = "CUDE"
@@ -58,7 +58,7 @@ def GenerateXML(Request: Request,Type):
         MonetaryTotal                               = "LegalMonetaryTotal"
 
     elif(Type       == "DebitNote"):
-        InvoiceNumber                               = int(Request.UBLExtensions.From) + 9
+        InvoiceNumber                               = int(Request.UBLExtensions.From) + int(Request.UBLExtensions.Sequence)
         ID                                          = Request.UBLExtensions.Prefix + str(InvoiceNumber) #El From debería estar en un For, para ir aumentando el consecutivo
         CloseTag                                    = "</DebitNote>"
         UUIDschemeName                              = "CUDE"
