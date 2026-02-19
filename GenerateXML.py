@@ -23,13 +23,14 @@ from datetime import datetime, timezone, timedelta
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import pkcs12, Encoding
-from models import Request
+from models import RequestInvoice, RequestCreditNote, RequestDebitNote
 from TableStorage import AddDocument
 #Quitar warning de P12
 warnings.filterwarnings("ignore",category=UserWarning,message="PKCS#12 bundle could not be parsed as DER")
 ####
 
-def GenerateXML(Request: Request,Type):
+
+def GenerateXML(Request: RequestInvoice | RequestCreditNote | RequestDebitNote,Type):
 
     if(Type         == "Invoice"):
         InvoiceNumber                               = int(Request.UBLExtensions.From) + int(Request.UBLExtensions.Sequence)
