@@ -1,6 +1,7 @@
 import azure.functions as func
 from models import RequestInvoice, RequestCreditNote, RequestDebitNote, RequestMetrics
 from GenerateXML import GenerateXML
+from TableStorage import GetMetricsTable
 
 
 app = func.FunctionApp()
@@ -41,9 +42,9 @@ def GenerateCreditNote(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         RequestObj = RequestCreditNote(**Data)
-        GenerateXML(RequestObj, "CreditNote")
+        GenerateXMLResponse = GenerateXML(RequestObj, "CreditNote")
         return func.HttpResponse(
-            str(Data),
+            str(GenerateXMLResponse),
             status_code=200
         )
     except Exception as e:
@@ -64,9 +65,9 @@ def GenerateDebitNote(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         RequestObj = RequestDebitNote(**Data)
-        GenerateXML(RequestObj, "DebitNote")
+        GenerateXMLResponse = GenerateXML(RequestObj, "DebitNote")
         return func.HttpResponse(
-            str(Data),
+            str(GenerateXMLResponse),
             status_code=200
         )
     except Exception as e:
@@ -87,9 +88,9 @@ def GetMetrics(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         RequestObj = RequestMetrics(**Data)
-        # GenerateXML(RequestObj, "DebitNote")
+        Metrics = GetMetricsTable(RequestObj)
         return func.HttpResponse(
-            str(Data),
+            str(Metrics),
             status_code=200
         )
     except Exception as e:

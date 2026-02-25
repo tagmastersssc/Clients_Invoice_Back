@@ -166,15 +166,5 @@ class RequestDebitNote(BaseModel):
     CUFE:                       CUFE
 
 class RequestMetrics(BaseModel):
-    DebitNote:                  DebitNote
-    UBLExtensions:              UBLExtensions 
-    Signature:                  Signature
-    VersionXML:                 VersionXML
-    AccountingSupplierParty:    AccountingSupplierParty
-    AccountingCustomerParty:    AccountingCustomerParty
-    PaymentMeans:               PaymentMeans
-    TaxTotal:                   TaxTotal
-    LegalMonetaryTotal:         LegalMonetaryTotal
-    InvoiceLine:                InvoiceLine
-    TaxTotalInvoiceLine:        TaxTotalInvoiceLine
-    CUFE:                       CUFE
+    Year:                       str #"2026"
+    Month:                      str #"02"

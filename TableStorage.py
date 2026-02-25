@@ -1,5 +1,6 @@
-from azure.data.tables import TableServiceClient, TableEntity
+from azure.data.tables import TableServiceClient
 import os
+import calendar
 
 connection_string = os.environ.get("CUSTOMCONNSTR_StorageTable")
 
@@ -15,5 +16,25 @@ def AddDocument(Data):
 
     return (connection_string)
 
+def GetMetricsTable(Data):
 
+    _, num_days = calendar.monthrange(int(Data.Year), int(Data.Month))
+
+    TotalInvoices           = sum(1 for _ in table_client.query_entities(f"PartitionKey eq 'Invoice' and Timestamp ge datetime'{Data.Year}-{Data.Month}-01T00:00:00Z' and Timestamp le datetime'{Data.Year}-{Data.Month}-{num_days}T23:59:59Z'"))
+    TotalCreditNotes        = sum(1 for _ in table_client.query_entities(f"PartitionKey eq 'CreditNote' and Timestamp ge datetime'{Data.Year}-{Data.Month}-01T00:00:00Z' and Timestamp le datetime'{Data.Year}-{Data.Month}-{num_days}T23:59:59Z'"))
+    TotalDebitNotes         = sum(1 for _ in table_client.query_entities(f"PartitionKey eq 'DebitNote' and Timestamp ge datetime'{Data.Year}-{Data.Month}-01T00:00:00Z' and Timestamp le datetime'{Data.Year}-{Data.Month}-{num_days}T23:59:59Z'"))
+    TotalValueInvoices      = sum(float(entity["PayableAmount"]) for entity in table_client.query_entities(f"PartitionKey eq 'Invoice' and Timestamp ge datetime'{Data.Year}-{Data.Month}-01T00:00:00Z' and Timestamp le datetime'{Data.Year}-{Data.Month}-{num_days}T23:59:59Z'"))
+    TotalValueCreditNotes   = sum(float(entity["PayableAmount"]) for entity in table_client.query_entities(f"PartitionKey eq 'CreditNote' and Timestamp ge datetime'{Data.Year}-{Data.Month}-01T00:00:00Z' and Timestamp le datetime'{Data.Year}-{Data.Month}-{num_days}T23:59:59Z'"))
+    TotalValueDebitNotes    = sum(float(entity["PayableAmount"]) for entity in table_client.query_entities(f"PartitionKey eq 'DebitNote' and Timestamp ge datetime'{Data.Year}-{Data.Month}-01T00:00:00Z' and Timestamp le datetime'{Data.Year}-{Data.Month}-{num_days}T23:59:59Z'"))
+
+    Metrics = {
+        "TotalInvoices": TotalInvoices,
+        "TotalCreditNotes": TotalCreditNotes,
+        "TotalDebitNotes": TotalDebitNotes,
+        "TotalValueInvoices": TotalValueInvoices,
+        "TotalValueCreditNotes": TotalValueCreditNotes,
+        "TotalValueDebitNotes": TotalValueDebitNotes
+    }
+
+    return (Metrics)
 

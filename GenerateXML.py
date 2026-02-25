@@ -25,6 +25,7 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.serialization import pkcs12, Encoding
 from models import RequestInvoice, RequestCreditNote, RequestDebitNote
 from TableStorage import AddDocument
+
 #Quitar warning de P12
 warnings.filterwarnings("ignore",category=UserWarning,message="PKCS#12 bundle could not be parsed as DER")
 ####
