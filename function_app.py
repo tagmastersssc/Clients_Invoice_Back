@@ -119,7 +119,7 @@ def CreateInitialResponse(req: func.HttpRequest) -> func.HttpResponse:
                 "Missing 'input_text' in request body",
                 status_code=400
             )
-        response = CreateInitialResponseAPI(input_text)
+        # response = CreateInitialResponseAPI(input_text)
         return func.HttpResponse(
             os.environ.get("APPSETTING_OPENAI_KEY"),
             # response.model_dump_json(indent=2),
