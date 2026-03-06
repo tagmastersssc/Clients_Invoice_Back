@@ -7,3 +7,5 @@ fastapi
 pydantic
 azure-functions
 azure-data-tables
+openai
+anyio
