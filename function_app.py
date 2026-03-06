@@ -1,3 +1,5 @@
+
+import os
 import azure.functions as func
 from models import RequestInvoice, RequestCreditNote, RequestDebitNote, RequestMetrics
 from GenerateXML import GenerateXML
@@ -119,7 +121,8 @@ def CreateInitialResponse(req: func.HttpRequest) -> func.HttpResponse:
             )
         response = CreateInitialResponseAPI(input_text)
         return func.HttpResponse(
-            response.model_dump_json(indent=2),
+            os.environ.get("APPSETTING_OPENAI_KEY"),
+            # response.model_dump_json(indent=2),
             status_code=200,
             mimetype="application/json"
         )
