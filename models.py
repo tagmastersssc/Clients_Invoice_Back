@@ -125,6 +125,7 @@ class CUFE(BaseModel):
     ClTec:                                          str #"fc8eac422eba16e22ffd8c6f94b3f40a6e38162c" #Extraer de página de la DIAN // Llave tecnica TechnicalKey
 
 class RequestInvoice(BaseModel):
+    DIAN:                       str
     UBLExtensions:              UBLExtensions 
     Signature:                  Signature
     VersionXML:                 VersionXML
@@ -138,6 +139,7 @@ class RequestInvoice(BaseModel):
     CUFE:                       CUFE
 
 class RequestCreditNote(BaseModel):
+    DIAN:                       str
     CreditNote:                 CreditNote
     UBLExtensions:              UBLExtensions 
     Signature:                  Signature
@@ -152,6 +154,7 @@ class RequestCreditNote(BaseModel):
     CUFE:                       CUFE
 
 class RequestDebitNote(BaseModel):
+    DIAN:                       str
     DebitNote:                  DebitNote
     UBLExtensions:              UBLExtensions 
     Signature:                  Signature

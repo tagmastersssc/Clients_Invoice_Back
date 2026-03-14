@@ -31,7 +31,6 @@ def GenerateInvoice(req: func.HttpRequest) -> func.HttpResponse:
             f"Error interno: {e}",
             status_code=500
         )
-    
 
 @app.route(route="GenerateCreditNote")
 def GenerateCreditNote(req: func.HttpRequest) -> func.HttpResponse:
