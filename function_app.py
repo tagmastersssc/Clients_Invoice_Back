@@ -2,7 +2,7 @@
 import azure.functions as func
 from models import RequestInvoice, RequestCreditNote, RequestDebitNote, RequestMetrics
 from GenerateXML import GenerateXML
-from TableStorage import GetMetricsTable
+from TableStorage import GetMetrics
 from OpenAIAPI import CreateInitialResponseAPI, CreateFollowUpResponseAPI
 
 
@@ -89,7 +89,7 @@ def Metrics(req: func.HttpRequest) -> func.HttpResponse:
 
     try:
         RequestObj = RequestMetrics(**Data)
-        Metrics = GetMetricsTable(RequestObj)
+        Metrics = GetMetrics(RequestObj)
         return func.HttpResponse(
             str(Metrics),
             status_code=200

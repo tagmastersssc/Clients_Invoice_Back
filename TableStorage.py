@@ -16,7 +16,7 @@ def AddDocument(Data):
 
     return (connection_string)
 
-def GetMetricsTable(Data):
+def GetMetrics(Data):
 
     _, num_days = calendar.monthrange(int(Data.Year), int(Data.Month))
 
