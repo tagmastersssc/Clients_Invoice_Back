@@ -1,5 +1,4 @@
 
-import os
 import azure.functions as func
 from models import RequestInvoice, RequestCreditNote, RequestDebitNote, RequestMetrics
 from GenerateXML import GenerateXML
@@ -78,8 +77,8 @@ def GenerateDebitNote(req: func.HttpRequest) -> func.HttpResponse:
             status_code=500
         )
     
-@app.route(route="GetMetrics")
-def GetMetrics(req: func.HttpRequest) -> func.HttpResponse:
+@app.route(route="Metrics", methods=["GET"])
+def Metrics(req: func.HttpRequest) -> func.HttpResponse:
     try:
         Data = req.get_json()
     except ValueError:
