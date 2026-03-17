@@ -8,7 +8,7 @@ from OpenAIAPI import CreateInitialResponseAPI, CreateFollowUpResponseAPI
 
 app = func.FunctionApp()
 
-@app.route(route="GenerateInvoice")
+@app.route(route="GenerateInvoice", methods=["POST"])
 def GenerateInvoice(req: func.HttpRequest) -> func.HttpResponse:
     try:
         Data = req.get_json()
@@ -31,7 +31,7 @@ def GenerateInvoice(req: func.HttpRequest) -> func.HttpResponse:
             status_code=500
         )
 
-@app.route(route="GenerateCreditNote")
+@app.route(route="GenerateCreditNote", methods=["POST"])
 def GenerateCreditNote(req: func.HttpRequest) -> func.HttpResponse:
     try:
         Data = req.get_json()
@@ -54,7 +54,7 @@ def GenerateCreditNote(req: func.HttpRequest) -> func.HttpResponse:
             status_code=500
         )
 
-@app.route(route="GenerateDebitNote")
+@app.route(route="GenerateDebitNote", methods=["POST"])
 def GenerateDebitNote(req: func.HttpRequest) -> func.HttpResponse:
     try:
         Data = req.get_json()
@@ -100,7 +100,7 @@ def Metrics(req: func.HttpRequest) -> func.HttpResponse:
             status_code=500
         )
 
-@app.route(route="CreateInitialResponse")
+@app.route(route="CreateInitialResponse", methods=["POST"])
 def CreateInitialResponse(req: func.HttpRequest) -> func.HttpResponse:
     try:
         Data = req.get_json()
@@ -129,7 +129,7 @@ def CreateInitialResponse(req: func.HttpRequest) -> func.HttpResponse:
             status_code=500
         )
 
-@app.route(route="CreateFollowUpResponse")
+@app.route(route="CreateFollowUpResponse", methods=["POST"])
 def CreateFollowUpResponse(req: func.HttpRequest) -> func.HttpResponse:
     try:
         Data = req.get_json()
