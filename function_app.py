@@ -5,7 +5,6 @@ from GenerateXML import GenerateXML
 from TableStorage import GetMetrics
 from OpenAIAPI import CreateInitialResponseAPI, CreateFollowUpResponseAPI
 
-
 app = func.FunctionApp()
 
 @app.route(route="GenerateInvoice", methods=["POST"])
