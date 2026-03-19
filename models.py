@@ -124,8 +124,37 @@ class CUFE(BaseModel):
     ValImp3:                                        str #"0.00" #Valor impuesto 03 - ICA    // Revisar, se deben sumar todos los impuestos de algún lado, seguramente de TaxSubtotal
     ClTec:                                          str #"fc8eac422eba16e22ffd8c6f94b3f40a6e38162c" #Extraer de página de la DIAN // Llave tecnica TechnicalKey
 
-class Request(BaseModel):
+class RequestInvoice(BaseModel):
+    DIAN:                       str
+    UBLExtensions:              UBLExtensions 
+    Signature:                  Signature
+    VersionXML:                 VersionXML
+    AccountingSupplierParty:    AccountingSupplierParty
+    AccountingCustomerParty:    AccountingCustomerParty
+    PaymentMeans:               PaymentMeans
+    TaxTotal:                   TaxTotal
+    LegalMonetaryTotal:         LegalMonetaryTotal
+    InvoiceLine:                InvoiceLine
+    TaxTotalInvoiceLine:        TaxTotalInvoiceLine
+    CUFE:                       CUFE
+
+class RequestCreditNote(BaseModel):
+    DIAN:                       str
     CreditNote:                 CreditNote
+    UBLExtensions:              UBLExtensions 
+    Signature:                  Signature
+    VersionXML:                 VersionXML
+    AccountingSupplierParty:    AccountingSupplierParty
+    AccountingCustomerParty:    AccountingCustomerParty
+    PaymentMeans:               PaymentMeans
+    TaxTotal:                   TaxTotal
+    LegalMonetaryTotal:         LegalMonetaryTotal
+    InvoiceLine:                InvoiceLine
+    TaxTotalInvoiceLine:        TaxTotalInvoiceLine
+    CUFE:                       CUFE
+
+class RequestDebitNote(BaseModel):
+    DIAN:                       str
     DebitNote:                  DebitNote
     UBLExtensions:              UBLExtensions 
     Signature:                  Signature
@@ -138,3 +167,7 @@ class Request(BaseModel):
     InvoiceLine:                InvoiceLine
     TaxTotalInvoiceLine:        TaxTotalInvoiceLine
     CUFE:                       CUFE
+
+class RequestMetrics(BaseModel):
+    Year:                       str #"2026"
+    Month:                      str #"02"
