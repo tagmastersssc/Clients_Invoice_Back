@@ -164,6 +164,13 @@ def _redirect(url: str, *, headers: dict[str, str] | None = None) -> func.HttpRe
     return func.HttpResponse(status_code=302, headers=response_headers)
 
 
+def _redirect_with_fragment(url: str, fragment_params: dict[str, str], *, headers: dict[str, str] | None = None) -> func.HttpResponse:
+    parsed = urlsplit(url)
+    fragment = urlencode({key: value for key, value in fragment_params.items() if value})
+    target = urlunsplit((parsed.scheme, parsed.netloc, parsed.path, parsed.query, fragment))
+    return _redirect(target, headers=headers)
+
+
 def _get_cookie_value(req: func.HttpRequest, name: str) -> str:
     raw_cookie = req.headers.get("Cookie", "")
     if not raw_cookie:
@@ -173,6 +180,16 @@ def _get_cookie_value(req: func.HttpRequest, name: str) -> str:
     jar.load(raw_cookie)
     morsel = jar.get(name)
     return morsel.value.strip() if morsel else ""
+
+
+def _get_bearer_token(req: func.HttpRequest) -> str:
+    authorization = req.headers.get("Authorization", "").strip()
+    if not authorization:
+        return ""
+    scheme, _, token = authorization.partition(" ")
+    if scheme.lower() != "bearer":
+        return ""
+    return token.strip()
 
 
 def _build_set_cookie_header(name: str, value: str, *, req: func.HttpRequest, max_age: int) -> str:
@@ -242,6 +259,10 @@ def _decode_client_session_token(token: str) -> dict:
 
 
 def _require_portal_session(req: func.HttpRequest) -> dict:
+    bearer_token = _get_bearer_token(req)
+    if bearer_token:
+        return _decode_client_session_token(bearer_token)
+
     cookie_token = _get_cookie_value(req, SESSION_COOKIE_NAME)
     if not cookie_token:
         raise PermissionError("Falta sesión autenticada.")
@@ -260,6 +281,8 @@ def _serialize_session_user(payload: dict) -> dict[str, str]:
 
 
 def _require_csrf(req: func.HttpRequest, session: dict) -> None:
+    if _get_bearer_token(req):
+        return
     expected = str(session.get("csrf") or "").strip()
     provided = req.headers.get("X-CSRF-Token", "").strip()
     if not expected or not provided or not secrets.compare_digest(expected, provided):
@@ -428,13 +451,13 @@ def BootstrapSession(req: func.HttpRequest) -> func.HttpResponse:
         name=str(user.get("name") or "").strip(),
         provider=str(user.get("provider") or "").strip(),
     )
-    cookie_header = _build_set_cookie_header(
-        SESSION_COOKIE_NAME,
-        session_token,
-        req=req,
-        max_age=CLIENTS_SESSION_TTL_SECONDS,
+    return _redirect_with_fragment(
+        CLIENTS_FRONT_URL,
+        {
+            "token": session_token,
+            "tenant": BILAI_TENANT_ID,
+        },
     )
-    return _redirect(CLIENTS_FRONT_URL, headers={"Set-Cookie": cookie_header})
 
 
 @app.route(route="session/me", methods=["GET", "OPTIONS"], auth_level=func.AuthLevel.ANONYMOUS)
@@ -465,8 +488,10 @@ def LogoutSession(req: func.HttpRequest) -> func.HttpResponse:
     except PermissionError as exc:
         return _json_response({"detail": str(exc)}, status_code=401, req=req)
 
-    cookie_header = _build_delete_cookie_header(SESSION_COOKIE_NAME, req=req)
-    return func.HttpResponse(status_code=204, headers={"Set-Cookie": cookie_header, **_cors_headers(req)})
+    response_headers = dict(_cors_headers(req))
+    if not _get_bearer_token(req):
+        response_headers["Set-Cookie"] = _build_delete_cookie_header(SESSION_COOKIE_NAME, req=req)
+    return func.HttpResponse(status_code=204, headers=response_headers or None)
 
 
 @app.route(route="metrics", methods=["GET", "OPTIONS"], auth_level=func.AuthLevel.ANONYMOUS)
