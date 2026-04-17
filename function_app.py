@@ -494,7 +494,7 @@ def LogoutSession(req: func.HttpRequest) -> func.HttpResponse:
     return func.HttpResponse(status_code=204, headers=response_headers or None)
 
 
-@app.route(route="metrics", methods=["GET", "OPTIONS"], auth_level=func.AuthLevel.ANONYMOUS)
+@app.route(route="portal/metrics", methods=["GET", "OPTIONS"], auth_level=func.AuthLevel.ANONYMOUS)
 def PortalMetrics(req: func.HttpRequest) -> func.HttpResponse:
     if req.method == "OPTIONS":
         return _preflight_response(req, "GET, OPTIONS")
