@@ -411,37 +411,32 @@ def RuntimeConfigJs(req: func.HttpRequest) -> func.HttpResponse:
 @app.route(route="auth/session/bootstrap", methods=["GET"], auth_level=func.AuthLevel.ANONYMOUS)
 def BootstrapSession(req: func.HttpRequest) -> func.HttpResponse:
     code = (req.params.get("code") or "").strip()
-    tenant = (req.params.get("tenant") or BILAI_TENANT_ID).strip()
 
     if not code:
-        login_url = f"{VITE_LOGIN_APP_URL}?{urlencode({'error': 'Falta el código de acceso.', 'tenant': BILAI_TENANT_ID})}"
-        return _redirect(login_url)
-
-    if tenant != BILAI_TENANT_ID:
-        login_url = f"{VITE_LOGIN_APP_URL}?{urlencode({'error': 'El tenant solicitado no coincide con este portal.', 'tenant': BILAI_TENANT_ID})}"
+        login_url = f"{VITE_LOGIN_APP_URL}?{urlencode({'error': 'Falta el código de acceso.'})}"
         return _redirect(login_url)
 
     try:
         exchange_response = httpx.post(
             f"{MAIN_LOGIN_BACK_URL}/api/auth/tenant/exchange",
-            json={"code": code, "tenant": tenant},
+            json={"code": code, "tenant": BILAI_TENANT_ID},
             headers={"X-BilAI-Exchange-Secret": BILAI_TENANT_EXCHANGE_SECRET},
             timeout=15,
         )
     except httpx.HTTPError:
-        login_url = f"{VITE_LOGIN_APP_URL}?{urlencode({'error': 'No fue posible validar el acceso con BilAI.', 'tenant': BILAI_TENANT_ID})}"
+        login_url = f"{VITE_LOGIN_APP_URL}?{urlencode({'error': 'No fue posible validar el acceso con BilAI.'})}"
         return _redirect(login_url)
 
     if exchange_response.status_code >= 400:
         detail = _parse_proxy_response(exchange_response)
         message = detail.get("detail") if isinstance(detail, dict) else str(detail or "").strip()
-        login_url = f"{VITE_LOGIN_APP_URL}?{urlencode({'error': message or 'No fue posible completar el acceso.', 'tenant': BILAI_TENANT_ID})}"
+        login_url = f"{VITE_LOGIN_APP_URL}?{urlencode({'error': message or 'No fue posible completar el acceso.'})}"
         return _redirect(login_url)
 
     payload = exchange_response.json()
     user = payload.get("user") if isinstance(payload, dict) else None
     if not isinstance(user, dict):
-        login_url = f"{VITE_LOGIN_APP_URL}?{urlencode({'error': 'BilAI devolvió una respuesta inválida al iniciar sesión.', 'tenant': BILAI_TENANT_ID})}"
+        login_url = f"{VITE_LOGIN_APP_URL}?{urlencode({'error': 'BilAI devolvió una respuesta inválida al iniciar sesión.'})}"
         return _redirect(login_url)
 
     session_token = _create_client_session_token(
@@ -455,7 +450,6 @@ def BootstrapSession(req: func.HttpRequest) -> func.HttpResponse:
         CLIENTS_FRONT_URL,
         {
             "token": session_token,
-            "tenant": BILAI_TENANT_ID,
         },
     )
 
