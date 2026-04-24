@@ -9,3 +9,5 @@ azure-functions
 azure-data-tables
 openai
 anyio
+httpx
+PyJWT>=2.8.0
